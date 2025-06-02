@@ -6,11 +6,28 @@
 #include <stdbool.h>
 
 int main() {
-    struct Produto produtos[50];
+    int capacidade = 5;
+    struct Produto *produtos = NULL;
+    produtos = malloc(capacidade * sizeof(struct Produto));
+    if (produtos == NULL) {
+        perror("Erro ao alocar a memória!");
+        return -1;
+    }
     int i = 0;
     char n[50];
-    while (true && i < 50) {
+    while (true) {
         
+        if (i == capacidade) {
+            capacidade *= 2;
+            struct Produto *temp = realloc(produtos, capacidade * sizeof(struct Produto));
+            if (temp == NULL) {
+                perror("Erro ao realocar a memória!");
+                free(produtos);
+                return -1;
+            }
+            produtos = temp;
+        }
+
         printf("Adicione um novo produto!\n");
         printf("Digite o nome do produto: \n");
         fgets(n, sizeof n - 1, stdin);
@@ -48,5 +65,5 @@ int main() {
         printf("Nome: %s\nPreco: R$%.2lf\nQtd.: %d\nCód.: %d\n", prod.nome, prod.preco, prod.quantidade, prod.codigo);
         printf("-----------------------------------------------\n");
     }
-    
+    free(produtos);
 }
