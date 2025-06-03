@@ -5,7 +5,10 @@
 #include "packages/funcs.c"
 #include <stdbool.h>
 
-int main() {
+/*
+Adiciona novos produtos até que o usuário deseje parar!
+*/
+int adicionar_produtos() {
     int capacidade = 5;
     struct Produto *produtos = NULL;
     produtos = malloc(capacidade * sizeof(struct Produto));
@@ -66,4 +69,46 @@ int main() {
         printf("-----------------------------------------------\n");
     }
     free(produtos);
+    return 0;
+}
+
+
+
+
+
+int main() {
+
+    FILE *exec_info = fopen(".//exec_mode.txt", "r");
+    if (exec_info == NULL) {
+
+        FILE *exec_info = fopen(".//exec_mode.txt", "w");
+
+        if (exec_info == NULL) {
+            perror("Erro ao abrir arquivo vital!");
+            return -1;
+        }
+
+        int mode;
+        printf("Em qual modo o sistema deve operar nessa máquina?\n[1] Administrativo\n[2] Caixa\n");
+        scanf("%d", &mode);
+
+        if (mode == 1) {
+            fprintf(exec_info, "a");
+            printf("O sistema foi configurado para rodar no modo ADMINISTRATIVO nesta máquina!\n");
+        } else {
+            fprintf(exec_info, "c");
+            printf("O sistema foi configurado para rodar no modo CAIXA nesta máquina!\n");
+        }
+
+        fclose(exec_info);
+        return 1;
+    }
+
+    char exec_mode = fgetc(exec_info);
+    
+    if (exec_mode == 'c') {
+        printf("CAIXA\n");
+    } else {
+        printf("ADMIN\n");
+    }
 }
