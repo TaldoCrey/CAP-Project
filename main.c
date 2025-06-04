@@ -33,15 +33,16 @@ int main() {
     }
 
     char exec_mode = fgetc(exec_info);
-    fclose(exec_mode);
+    fclose(exec_info);
     
     if (exec_mode == 'c') {
         printf("CAIXA\n");
     } else {
-        struct Produto* produtos = adicionar_produtos();
+        int qtd = 0;
+        struct Produto* produtos = adicionar_produtos(&qtd);
         printf("Mostrando todos os produtos!\n");
 
-        for(int j = 0; j < sizeof(produtos); j++) {
+        for(int j = 0; j < qtd; j++) {
             struct Produto prod = produtos[j];
             printf("-----------------------------------------------\n");
             printf("Nome: %s\nPreco: R$%.2lf\nQtd.: %d\nCod.: %d\n", prod.nome, prod.preco, prod.quantidade, prod.codigo);

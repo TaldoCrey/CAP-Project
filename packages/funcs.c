@@ -42,7 +42,7 @@ struct User novo_usuario(char login[100], char senha[20]) {
 /*
 Adiciona novos produtos até que o usuário deseje parar!
 */
-struct Produto* adicionar_produtos() {
+struct Produto* adicionar_produtos(int *qtd) {
     int capacidade = 1;
     struct Produto *produtos = NULL;
     produtos = malloc(capacidade * sizeof(struct Produto));
@@ -80,6 +80,7 @@ struct Produto* adicionar_produtos() {
         printf("-----------------------------------------------\n");
         printf("Produto adicionado!\n");
         produtos[i] = novo_produto(n, p, q);
+        *qtd += 1;
         printf("-----------------------------------------------\n");
         printf("Deseja adicionar outro produto? [1] S \\ [2] N\n");
         printf("\n>_: ");
