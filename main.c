@@ -40,13 +40,7 @@ int main() {
     } else {
         int qtd = 0;
         struct Produto* produtos = adicionar_produtos(&qtd);
-        printf("Mostrando todos os produtos!\n");
-
-        for(int j = 0; j < qtd; j++) {
-            struct Produto prod = produtos[j];
-            printf("-----------------------------------------------\n");
-            printf("Nome: %s\nPreco: R$%.2lf\nQtd.: %d\nCod.: %d\n", prod.nome, prod.preco, prod.quantidade, prod.codigo);
-            printf("-----------------------------------------------\n");
-        }
+        
+        mostrar_produtos(qtd, produtos);
     }
 }

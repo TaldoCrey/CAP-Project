@@ -4,6 +4,15 @@
 
 int cod = 0;
 int user_id = 0;
+
+/*
+    Container que armazena a informação de um Produto!
+
+    @param nome: Nome do Protudo!
+    @param preco: Preço do Produto!
+    @param codigo: Código deidentificação do protudo!
+    @param quantidade: Quantidade do Produto no estoque!
+*/
 typedef struct Produto {
     char nome[50];
     double preco;
@@ -11,12 +20,29 @@ typedef struct Produto {
     int quantidade;
 } prod;
 
+/*
+    Container que armazena a informação de um usuário.
+    OBS: Todo usuário cadastrado é considerado um administrador do sistema!
+
+    @param login: Nome de Login do Usuário!
+    @param password: Senha de Login do Usuário!
+    @param userID: ID de usuário (Utilitário para o banco de dados!)
+*/
 typedef struct User {
     char login[100];
     char password[20];
     int userID;
 } user;
 
+/*
+    Função que cria um novo produto no sistema!
+
+    @param nome: Nome do Produto!
+    @param preco: Preço do Produto!
+    @param quantidade: Quantidade do Produto em Estoque!
+
+    @returns Um container contendo todas as informações do Produto!
+*/
 struct Produto novo_produto(char nome[50], double preco, int quantidade) {
 
     prod new_prod;
@@ -29,6 +55,14 @@ struct Produto novo_produto(char nome[50], double preco, int quantidade) {
 
 }
 
+/*
+    Função que cria um novo usuário no sistema!
+
+    @param login: Login de Usuário no sistema!
+    @param senha: Senha para login de Usuário no sistema!
+
+    @return Um container contendo todas as informações do usuário!
+*/
 struct User novo_usuario(char login[100], char senha[20]) {
 
     user new_user;
@@ -40,7 +74,11 @@ struct User novo_usuario(char login[100], char senha[20]) {
 }
 
 /*
-Adiciona novos produtos até que o usuário deseje parar!
+    Adiciona novos produtos até que o usuário deseje parar!
+
+    @param qtd: (Quantidade) Contabiliza quantos produtos foram de fato adicionados ao sistema!
+
+    @returns Uma lista contendo conteineres de todos os produtos adicionados!
 */
 struct Produto* adicionar_produtos(int *qtd) {
     int capacidade = 1;
@@ -94,4 +132,21 @@ struct Produto* adicionar_produtos(int *qtd) {
         getchar();
     }
     return produtos;
+}
+
+/*
+    Mostra todos os produtos em estoque!
+
+    @param qtd:(Quantidade) Informa a quantidade atual de produtos no estoque!
+    @param produtos: Lista que contém os conteineres de cada produto!
+*/
+void mostrar_produtos(int qtd, struct Produto* produtos) {
+    printf("Mostrando todos os produtos!\n");
+
+    for(int j = 0; j < qtd; j++) {
+        struct Produto prod = produtos[j];
+        printf("-----------------------------------------------\n");
+        printf("Nome: %s\nPreco: R$%.2lf\nQtd.: %d\nCod.: %d\n", prod.nome, prod.preco, prod.quantidade, prod.codigo);
+        printf("-----------------------------------------------\n");
+    }
 }
