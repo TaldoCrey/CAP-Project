@@ -38,9 +38,24 @@ int main() {
     if (exec_mode == 'c') {
         printf("CAIXA\n");
     } else {
+        int c = -1;
         int qtd = 0;
-        struct Produto* produtos = adicionar_produtos(&qtd);
-        
-        mostrar_produtos(qtd, produtos);
+        struct Produto* produtos = loadProducts(&qtd);
+        while (c != 6) {
+            printf("---------------------------------------\n");
+            printf("Selecione uma Opção:\n[1] Adicionar Produtos\t[2] Adicionar Usuário\n[3] Editar Produto\t[4] Editar Usuário\n[5] Ver Todos os Produtos\t[6] Sair\n");
+            printf(">_: ");
+            scanf("%d", &c);
+
+            if (c == 1) {
+                system("clear");
+                produtos = adicionar_produtos(&qtd);
+                saveProducts(produtos, qtd);
+            } else if (c == 5) {
+                system("clear");
+                mostrar_produtos(qtd, produtos);
+            }
+        }
     }
 }
+
