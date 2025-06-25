@@ -82,9 +82,9 @@ struct User novo_usuario(char login[100], char senha[20]) {
 */
 struct Produto* adicionar_produtos(int *qtd) {
     int capacidade = 1;
-    struct Produto *produtos = NULL;
-    produtos = malloc(capacidade * sizeof(struct Produto));
-    if (produtos == NULL) {
+    struct Produto *add_produtos = NULL;
+    add_produtos = malloc(capacidade * sizeof(struct Produto));
+    if (add_produtos == NULL) {
         perror("Erro ao alocar a memória!");
         return NULL;
     }
@@ -94,13 +94,13 @@ struct Produto* adicionar_produtos(int *qtd) {
         
         if (i == capacidade) {
             capacidade *= 2;
-            struct Produto *temp = realloc(produtos, capacidade * sizeof(struct Produto));
+            struct Produto *temp = realloc(add_produtos, capacidade * sizeof(struct Produto));
             if (temp == NULL) {
                 perror("Erro ao realocar a memória!");
-                free(produtos);
+                free(add_produtos);
                 return NULL;
             }
-            produtos = temp;
+            add_produtos = temp;
         }
 
         printf("Adicione um novo produto!\n");
@@ -118,7 +118,7 @@ struct Produto* adicionar_produtos(int *qtd) {
 
         printf("-----------------------------------------------\n");
         printf("Produto adicionado!\n");
-        produtos[i] = novo_produto(n, p, q);
+        add_produtos[i] = novo_produto(n, p, q);
         *qtd += 1;
         printf("-----------------------------------------------\n");
         printf("Deseja adicionar outro produto? [1] S \\ [2] N\n");
@@ -131,7 +131,7 @@ struct Produto* adicionar_produtos(int *qtd) {
         }
         i++;
     }
-    return produtos;
+    return add_produtos;
 }
 
 /*
@@ -143,7 +143,7 @@ struct Produto* adicionar_produtos(int *qtd) {
 void mostrar_produtos(int qtd, struct Produto* produtos) {
     printf("Mostrando todos os produtos!\n");
 
-    for(int j = 0; j < qtd; j++) {
+    for(int j = 0; j < qtd - 1; j++) {
         struct Produto prod = produtos[j];
         printf("-----------------------------------------------\n");
         printf("Nome: %s\nPreco: R$%.2lf\nQtd.: %d\nCod.: %d\n", prod.nome, prod.preco, prod.quantidade, prod.codigo);
@@ -155,23 +155,18 @@ void mostrar_produtos(int qtd, struct Produto* produtos) {
     Função que armazena um produto no banco de dados!
 
     @param produtos: Lista contendo os produtos a serem armazenados!
-    @param qtd: (Quantidade) Informa quantos produtos existem em estoque atualmente!
 */
-void saveProducts(struct Produto* produtos, int qtd) {
+void saveProduct(struct Produto produto) {
 
     FILE * data_f = fopen(".//products.txt", "a");
     if (data_f == NULL) {
         FILE * data_f = fopen(".//products.txt", "w");
     }
 
-    for (int i = 0; i < qtd; i++) {
 
-        fprintf(data_f, "%s;%.2lf;%d\n", produtos[i].nome, produtos[i].preco, produtos[i].quantidade);
-        printf("O produto {%s} foi adicionado ao banco de dados!\n", produtos[i].nome);
+    fprintf(data_f, "%s;%.2lf;%d\n", produto.nome, produto.preco, produto.quantidade);
+    printf("O produto {%s} foi adicionado ao banco de dados!\n", produto.nome);
 
-    }
-
-    printf("%d produto(s) foram adicionados com sucesso ao banco de dados!\n", qtd);
     fclose(data_f);
 }
 
@@ -190,13 +185,16 @@ struct Produto* loadProducts(int *qtd) {
     if (data_f == NULL) {
         perror("Erro ao carregar produtos!");
         return prods;
-
     }
 
     char linha[200];
     const char del[3] = ";";
     char* it;
     while (fgets(linha, sizeof(linha), data_f) != NULL) {
+        linha[strlen(linha) - 1] = '\0';
+        if (strlen(linha) - 1 == 0) {
+            break;
+        }
         if (i == capacidade) {
             capacidade *= 2;
             struct Produto *temp = realloc(prods, capacidade * sizeof(struct Produto));
@@ -208,7 +206,7 @@ struct Produto* loadProducts(int *qtd) {
             }
             prods = temp;
         }
-        linha[strlen(linha) - 1] = '\0';
+        
         //printf("LINHA -> %s\n", linha);
         it = strtok(linha, del);
         int info = 0;
@@ -231,7 +229,7 @@ struct Produto* loadProducts(int *qtd) {
         i++;
         //getchar();
     }
-    *qtd = i - 1;
+    *qtd = i + 1;
     printf("%d Produto(s) foram carregados!", i);
     fclose(data_f);
     return prods;

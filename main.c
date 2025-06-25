@@ -49,13 +49,34 @@ int main() {
 
             if (c == 1) {
                 system("clear");
-                produtos = adicionar_produtos(&qtd);
-                saveProducts(produtos, qtd);
+                int old_qtd = qtd;
+                struct Produto* add_produtos = adicionar_produtos(&qtd);
+                for (int i = 0; i < qtd - old_qtd; i++)
+                    saveProduct(add_produtos[i]);
+                
+                struct Produto* temp = realloc(produtos, sizeof(produtos) + sizeof(add_produtos) + sizeof(struct Produto));
+                if (temp == NULL) {
+                    perror("Erro ao realocar memória!");
+                    free(temp);
+                    free(add_produtos);
+                    free(produtos);
+                    return -1;
+                }
+                produtos = temp;
+                memcpy(produtos + sizeof(produtos), add_produtos, sizeof(add_produtos));
+                free(add_produtos);
+
             } else if (c == 5) {
                 system("clear");
+                produtos = loadProducts(&qtd);
                 mostrar_produtos(qtd, produtos);
             }
         }
+
+
+        free(produtos);
     }
+
+    
 }
 
