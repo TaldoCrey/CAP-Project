@@ -34,7 +34,9 @@ int main() {
 
     char exec_mode = fgetc(exec_info);
     fclose(exec_info);
-    //Executa o código principal
+
+    //Executa o código principal do projeto
+    
     if (exec_mode == 'c') {
         printf("CAIXA\n");
     //Modo Admin
@@ -66,8 +68,9 @@ int main() {
                 produtos = temp;
                 memcpy(produtos + sizeof(produtos), add_produtos, sizeof(add_produtos));
                 free(add_produtos);
-
+            //else if
             } else if (c == 5) {
+            //Dentro do Elseif
                 system("clear");
                 produtos = loadProducts(&qtd);
                 mostrar_produtos(qtd, produtos);
