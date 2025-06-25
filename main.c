@@ -46,7 +46,7 @@ int main() {
             printf("Selecione uma Opção:\n[1] Adicionar Produtos\t[2] Adicionar Usuário\n[3] Editar Produto\t[4] Editar Usuário\n[5] Ver Todos os Produtos\t[6] Sair\n");
             printf(">_: ");
             scanf("%d", &c);
-
+            //Adiciona Produtos
             if (c == 1) {
                 system("clear");
                 int old_qtd = qtd;
