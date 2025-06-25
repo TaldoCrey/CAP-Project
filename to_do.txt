@@ -1,0 +1,18 @@
+1 - Adicionar Usuário e Editar Usuário:
+    Tem que usar o struct de usuário que ta feito já, e adicionar eles no banco de dados igual ta feito com os produtos, com um arquivinho de texto e tudo mais.
+
+2 - Função de Edição de Produtos
+
+3 - Funções da fase CAIXA:
+    * Ler produtos pelo código e associar código ao produto e preço
+    * Receber o dinheiro e devolver o troco
+    * Deve ser possível remover produtos da soma final caso necessário
+    * Criar conta de cliente pra pagar fiado
+    * Pagar conta de cliente fiado
+
+4 - Função Administrativa:
+    * Opção de Adicionar e Remover Edição de preço com Promoção! (Promoções devem aparecer na hora de mostrar todos os produtos, essa é a diferença pra edição de preço do item 2)
+
+5 - Novo Struct de usuário, do tipo cliente e não administrativo:
+    * Deve conter nome, código de cliente e valor da dívida.
+
