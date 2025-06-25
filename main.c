@@ -37,6 +37,7 @@ int main() {
     //Executa o código principal
     if (exec_mode == 'c') {
         printf("CAIXA\n");
+    //Modo Admin
     } else {
         int c = -1;
         int qtd = 0;
