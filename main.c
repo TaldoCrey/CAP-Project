@@ -74,7 +74,7 @@ int main() {
             }
         }
 
-
+        //libera a memória de produtos
         free(produtos);
     }
 
