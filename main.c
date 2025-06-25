@@ -67,7 +67,7 @@ int main() {
                 produtos = temp;
                 memcpy(produtos + sizeof(produtos), add_produtos, sizeof(add_produtos));
                 free(add_produtos);
-
+            //else if
             } else if (c == 5) {
                 system("clear");
                 produtos = loadProducts(&qtd);
