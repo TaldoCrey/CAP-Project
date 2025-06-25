@@ -34,7 +34,9 @@ int main() {
 
     char exec_mode = fgetc(exec_info);
     fclose(exec_info);
-    //Executa o código principal
+
+    //Executa o código principal do projeto
+    
     if (exec_mode == 'c') {
         printf("CAIXA\n");
     } else {
