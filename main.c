@@ -69,6 +69,7 @@ int main() {
                 free(add_produtos);
             //else if
             } else if (c == 5) {
+            //Dentro do Elseif
                 system("clear");
                 produtos = loadProducts(&qtd);
                 mostrar_produtos(qtd, produtos);
