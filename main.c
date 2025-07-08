@@ -38,15 +38,25 @@ int main() {
     //Executa o código principal do projeto
     
     if (exec_mode == 'c') {
-        printf("CAIXA\n");
+        printf("Modo CAIXA!\n");
+        int c = -1;
+        while (c != 2) {
+            printf("---------------------------------------\n");
+            printf("Selecione uma Opção:\n[1] Editar Usuário\t[2] Sair\n");
+            printf(">_: ");
+            scanf("%d", &c);
+        if (c == 1) {
+            editar_usuario();
+        }
+}
     //Modo Admin
     } else {
         int c = -1;
         int qtd = 0;
         struct Produto* produtos = loadProducts(&qtd);
-        while (c != 6) {
+        while (c != 7) {
             printf("---------------------------------------\n");
-            printf("Selecione uma Opção:\n[1] Adicionar Produtos\t[2] Adicionar Usuário\n[3] Editar Produto\t[4] Editar Usuário\n[5] Ver Todos os Produtos\t[6] Sair\n");
+            printf("Selecione uma Opção:\n[1] Adicionar Produtos\t[2] Adicionar Usuário\n[3] Editar Produto\t[4] Editar Usuário\n[5] Ver Todos os Produtos\t[6] Editar Usuário do Sistema\t[7] Sair\n");
             printf(">_: ");
             scanf("%d", &c);
             //Adiciona Produtos
@@ -74,13 +84,14 @@ int main() {
                 system("clear");
                 produtos = loadProducts(&qtd);
                 mostrar_produtos(qtd, produtos);
+            } else if (c == 2){
+                adicionar_usuario();
+            } else if (c == 6){
+                editar_usuario();
             }
         }
 
         //libera a memória de produtos
         free(produtos);
     }
-
-    
 }
-
