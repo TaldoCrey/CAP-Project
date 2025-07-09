@@ -39,6 +39,31 @@ int main() {
     
     if (exec_mode == 'c') {
         printf("CAIXA\n");
+
+        
+        int codigo;
+        printf("\nDigite o codigo do produto:\n> ");
+        scanf("%d", &codigo);
+
+        int qtd = 0;
+        struct Produto* produtos = loadProducts(&qtd);
+
+        //struct Produto buscar_produto_por_codigo(struct Produto* lista, int qtd, int codigo)
+        struct Produto produto_encontrado = buscar_produto_por_codigo(produtos, qtd, codigo);
+
+        while (produto_encontrado.codigo == -1){
+            printf("\nProduto nao encontrado. Digite um codigo valido: \n>");
+            scanf("%d", &codigo);
+
+            produto_encontrado = buscar_produto_por_codigo(produtos, qtd, codigo);
+        }
+
+        printf("\ncodigo: %d", produto_encontrado.codigo);
+        printf("\nquantidade: %d", produto_encontrado.quantidade);
+        printf("\nnome %s", produto_encontrado.nome);
+        
+        
+
     //Modo Admin
     } else {
         int c = -1;

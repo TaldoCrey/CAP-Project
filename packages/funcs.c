@@ -235,3 +235,67 @@ struct Produto* loadProducts(int *qtd) {
     return prods;
 }
 
+/*
+    Função que lê o código do produto e o associa ao preço e ao produto!
+
+    @param lista: Lista contendo os conteiners de cada produto!
+    @param qtd (Quantidade): Informa a quantidade de produtos que tem no estoque!
+    @param codigo: Código de um produto!
+    @returns produto: Retorna o produto referente ao código ou not_found caso nao encontre!
+*/
+struct Produto buscar_produto_por_codigo(struct Produto* lista, int qtd, int codigo) {
+    for (int i = 0; i < qtd; i++) {
+        if (lista[i].codigo == codigo) {
+            return lista[i];
+        }
+    }
+
+    // Se não encontrar, retorna um produto "vazio"
+    struct Produto not_found;
+    strcpy(not_found.nome, "NAO ENCONTRADO");
+    not_found.preco = 0;
+    not_found.quantidade = 0;
+    not_found.codigo = -1;
+    return not_found;
+}
+
+/*
+    Função que retorna o valor total de um produto a ser pago!
+
+    @param produto: Container referente aos dados do produto!
+    @returns soma: Valor do produto multiplicado pela quantidade!
+*/
+double caulcula_preco_produtos (struct Produto *produto){
+    double preco = produto->preco;
+    double quantidade = produto->quantidade;
+
+    double soma = preco * quantidade;
+
+    return soma;
+}
+
+/*
+    Função que recebe o pagamento do usuário e devolve o troco!
+
+    @param total: Valor totoal da compra!
+    @param pago: Valor pago pelo usuário!
+    @returns: Valor do troco ou -1, caso o pagamento seja insuficiente!
+*/
+double devolve_troco (double pago, double total){
+    // Verifica se o usuário fez o pagamento com um valor correto (maior ou igual ao valor da compra)
+    if (pago < total){
+        printf("\nPagamento insuficiente! O valor pago e menor que o total. \n");
+        return -1;
+    }
+
+    // Calcula o troco e retorna
+    double troco = pago - total;
+    return troco;
+}
+
+/*
+
+*/
+
+
+
