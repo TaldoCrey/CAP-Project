@@ -299,3 +299,131 @@ double devolve_troco (double pago, double total){
 
 
 
+// Salva um usuário no arquivo users.txt
+void saveUser(struct User u) {
+    FILE *file = fopen(".//users.txt", "a");
+    if (file == NULL) {
+        file = fopen(".//users.txt", "w");
+        if (file == NULL) {
+            perror("Erro ao criar arquivo de usuários!");
+            return;
+        }
+    }
+
+    fprintf(file, "%s;%s;%d\n", u.login, u.password, u.userID);
+    printf("Usuário {%s} foi salvo no banco de dados!\n", u.login);
+    fclose(file);
+}
+
+// Carrega todos os usuários do arquivo
+struct User* loadUsers(int *n) {
+    FILE *file = fopen(".//users.txt", "r");
+    if (file == NULL) {
+        *n = 0;
+        return NULL;
+    }
+
+    int capacidade = 4;
+    struct User *usuarios = malloc(capacidade * sizeof(struct User));
+    if (usuarios == NULL) {
+        perror("Erro de memória ao carregar usuários!");
+        return NULL;
+    }
+
+    char linha[150];
+    int i = 0;
+
+    while (fgets(linha, sizeof(linha), file)) {
+        if (i == capacidade) {
+            capacidade *= 2;
+            struct User *temp = realloc(usuarios, capacidade * sizeof(struct User));
+            if (temp == NULL) {
+                perror("Erro ao realocar usuários!");
+                free(usuarios);
+                fclose(file);
+                return NULL;
+            }
+            usuarios = temp;
+        }
+
+        linha[strcspn(linha, "\n")] = '\0';
+        char *login = strtok(linha, ";");
+        char *senha = strtok(NULL, ";");
+        char *id = strtok(NULL, ";");
+
+        if (login && senha && id) {
+            strcpy(usuarios[i].login, login);
+            strcpy(usuarios[i].password, senha);
+            sscanf(id, "%d", &usuarios[i].userID);
+            i++;
+        }
+    }
+
+    fclose(file);
+    *n = i;
+    return usuarios;
+}
+
+// Cria e adiciona um novo usuário
+void adicionar_usuario() {
+    char login[100];
+    char senha[20];
+
+    getchar();
+    printf("Digite o login do novo usuário: ");
+    fgets(login, sizeof login, stdin);
+    login[strcspn(login, "\n")] = '\0';
+
+    printf("Digite a senha: ");
+    fgets(senha, sizeof senha, stdin);
+    senha[strcspn(senha, "\n")] = '\0';
+
+    struct User novo = novo_usuario(login, senha);
+    saveUser(novo);
+}
+
+// Edita senha de um usuário já existente
+void editar_usuario() {
+    int qtd;
+    struct User *usuarios = loadUsers(&qtd);
+    if (usuarios == NULL || qtd == 0) {
+        printf("Nenhum usuário encontrado!\n");
+        return;
+    }
+
+    printf("Usuários encontrados:\n");
+    for (int i = 0; i < qtd; i++) {
+        printf("[%d] Login: %s | ID: %d\n", i, usuarios[i].login, usuarios[i].userID);
+    }
+
+    printf("Digite o número do usuário que deseja editar: ");
+    int escolha;
+    scanf("%d", &escolha);
+    getchar();
+
+    if (escolha < 0 || escolha >= qtd) {
+        printf("Usuário inválido!\n");
+        free(usuarios);
+        return;
+    }
+
+    printf("Digite a nova senha para o usuário %s: ", usuarios[escolha].login);
+    fgets(usuarios[escolha].password, sizeof(usuarios[escolha].password), stdin);
+    usuarios[escolha].password[strcspn(usuarios[escolha].password, "\n")] = '\0';
+
+    // Sobrescreve o arquivo com todos os usuários atualizados
+    FILE *file = fopen(".//users.txt", "w");
+    if (file == NULL) {
+        perror("Erro ao reescrever usuários!");
+        free(usuarios);
+        return;
+    }
+
+    for (int i = 0; i < qtd; i++) {
+        fprintf(file, "%s;%s;%d\n", usuarios[i].login, usuarios[i].password, usuarios[i].userID);
+    }
+
+    fclose(file);
+    printf("Senha atualizada com sucesso!\n");
+    free(usuarios);
+}
