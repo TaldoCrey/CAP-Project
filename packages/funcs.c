@@ -43,6 +43,7 @@ typedef struct User {
 
     @returns Um container contendo todas as informações do Produto!
 */
+
 struct Produto novo_produto(char nome[50], double preco, int quantidade) {
 
     prod new_prod;
@@ -74,12 +75,34 @@ struct User novo_usuario(char login[100], char senha[20]) {
 }
 
 /*
+    Função que armazena um produto no banco de dados!
+
+    @param produtos: Lista contendo os produtos a serem armazenados!
+*/
+
+void saveProduct(struct Produto produto) {
+
+    FILE * data_f = fopen(".//products.txt", "a");
+    if (data_f == NULL) {
+        FILE * data_f = fopen(".//products.txt", "w");
+    }
+
+
+    fprintf(data_f, "%s;%.2lf;%d;%d\n", produto.nome, produto.preco, produto.quantidade, produto.codigo);
+    printf("{%s} foi adicionado ao banco de dados!\n", produto.nome);
+
+    fclose(data_f);
+}
+
+/*
     Adiciona novos produtos até que o usuário deseje parar!
 
     @param qtd: (Quantidade) Contabiliza quantos produtos foram de fato adicionados ao sistema!
 
     @returns Uma lista contendo conteineres de todos os produtos adicionados!
 */
+
+// (Bruno) Modifiquei a parte da contagem de quantidade
 struct Produto* adicionar_produtos(int *qtd) {
     int capacidade = 1;
     struct Produto *add_produtos = NULL;
@@ -119,7 +142,10 @@ struct Produto* adicionar_produtos(int *qtd) {
         printf("-----------------------------------------------\n");
         printf("Produto adicionado!\n");
         add_produtos[i] = novo_produto(n, p, q);
-        *qtd += 1;
+
+        saveProduct(add_produtos[i]);
+
+        (*qtd) += 1;
         printf("-----------------------------------------------\n");
         printf("Deseja adicionar outro produto? [1] S \\ [2] N\n");
         printf("\n>_: ");
@@ -140,10 +166,11 @@ struct Produto* adicionar_produtos(int *qtd) {
     @param qtd:(Quantidade) Informa a quantidade atual de produtos no estoque!
     @param produtos: Lista que contém os conteineres de cada produto!
 */
+
 void mostrar_produtos(int qtd, struct Produto* produtos) {
     printf("Mostrando todos os produtos!\n");
-
-    for(int j = 0; j < qtd - 1; j++) {
+    
+    for(int j = 0; j < qtd; j++) {
         struct Produto prod = produtos[j];
         printf("-----------------------------------------------\n");
         printf("Nome: %s\nPreco: R$%.2lf\nQtd.: %d\nCod.: %d\n", prod.nome, prod.preco, prod.quantidade, prod.codigo);
@@ -151,27 +178,9 @@ void mostrar_produtos(int qtd, struct Produto* produtos) {
     }
 }
 
-/*
-    Função que armazena um produto no banco de dados!
-
-    @param produtos: Lista contendo os produtos a serem armazenados!
-*/
-void saveProduct(struct Produto produto) {
-
-    FILE * data_f = fopen(".//products.txt", "a");
-    if (data_f == NULL) {
-        FILE * data_f = fopen(".//products.txt", "w");
-    }
-
-
-    fprintf(data_f, "%s;%.2lf;%d\n", produto.nome, produto.preco, produto.quantidade);
-    printf("O produto {%s} foi adicionado ao banco de dados!\n", produto.nome);
-
-    fclose(data_f);
-}
-
+// (Bruno) Modifiquei a função para carregar e atualizar o código do produto
 struct Produto* loadProducts(int *qtd) {
-    int cod = 0;
+    *qtd = 0;
     int capacidade = 2;
     struct Produto* prods = NULL;
     prods = malloc(capacidade * sizeof(struct Produto));
@@ -179,7 +188,7 @@ struct Produto* loadProducts(int *qtd) {
         perror("Erro ao alocar a memória!");
         return NULL;
     }
-    int i = 0;
+
     FILE * data_f = fopen(".//products.txt", "r");
 
     if (data_f == NULL) {
@@ -188,49 +197,73 @@ struct Produto* loadProducts(int *qtd) {
     }
 
     char linha[200];
-    const char del[3] = ";";
-    char* it;
+    const char del[] = ";";
+    int maior_codigo = -1;
     while (fgets(linha, sizeof(linha), data_f) != NULL) {
         linha[strlen(linha) - 1] = '\0';
-        if (strlen(linha) - 1 == 0) {
-            break;
+        if (strlen(linha) == 0) {
+            continue;
         }
-        if (i == capacidade) {
+        if (*qtd == capacidade) {
             capacidade *= 2;
             struct Produto *temp = realloc(prods, capacidade * sizeof(struct Produto));
             if (temp == NULL) {
                 perror("Erro ao realocar a memória!");
                 free(prods);
-                struct Produto* null = NULL;
-                return null;
+                fclose(data_f);
+                return NULL;
             }
             prods = temp;
         }
         
-        //printf("LINHA -> %s\n", linha);
-        it = strtok(linha, del);
-        int info = 0;
+        char *it;
         char nome[50];
-        strcpy(nome, it);
-        double price;
+        double preco;
         int quant;
-        while (it != NULL) {
-            info++;
-            //printf("IT = %s\n", it);
-            it = strtok(NULL, del);
-            if (info == 1) {
-                sscanf(it, "%lf", &price);
-            } else if (info == 2) {
-                sscanf(it, "%d", &quant);
-            }
+        int codigo_prod = -1;
+
+        char temp_linha[200];
+        strcpy(temp_linha, linha);
+
+        it = strtok(temp_linha, del);
+
+        if (it) 
+            strcpy(nome, it); 
+        else 
+            continue;
+
+        it = strtok(NULL, del); 
+
+        if (it) 
+            sscanf(it, "%lf", &preco); 
+        else 
+            continue;
+
+        it = strtok(NULL, del); 
+        
+        if (it) 
+            sscanf(it, "%d", &quant); 
+        else 
+            continue;
+
+        it = strtok(NULL, del);
+
+        if (it) 
+            sscanf(it, "%d", &codigo_prod);
+        else
+            codigo_prod = cod;
+
+        strcpy(prods[*qtd].nome, nome);
+        prods[*qtd].preco = preco;
+        prods[*qtd].quantidade = quant;
+        prods[*qtd].codigo = codigo_prod;
+
+        if (codigo_prod > maior_codigo) {
+            maior_codigo = codigo_prod;
         }
-        //printf("ADDING: %s ; %.2lf ; %d\n", nome, price, quant);
-        prods[i] = novo_produto(nome, price, quant);
-        i++;
-        //getchar();
+        (*qtd)++;
     }
-    *qtd = i + 1;
-    printf("%d Produto(s) foram carregados!", i);
+    cod = maior_codigo + 1;
     fclose(data_f);
     return prods;
 }
@@ -243,14 +276,13 @@ struct Produto* loadProducts(int *qtd) {
     @param codigo: Código de um produto!
     @returns produto: Retorna o produto referente ao código ou not_found caso nao encontre!
 */
+
 struct Produto buscar_produto_por_codigo(struct Produto* lista, int qtd, int codigo) {
     for (int i = 0; i < qtd; i++) {
         if (lista[i].codigo == codigo) {
             return lista[i];
         }
     }
-
-    // Se não encontrar, retorna um produto "vazio"
     struct Produto not_found;
     strcpy(not_found.nome, "NAO ENCONTRADO");
     not_found.preco = 0;
@@ -260,19 +292,14 @@ struct Produto buscar_produto_por_codigo(struct Produto* lista, int qtd, int cod
 }
 
 /*
-    Função que retorna o valor total de um produto a ser pago!
-
-    @param produto: Container referente aos dados do produto!
-    @returns soma: Valor do produto multiplicado pela quantidade!
+    Container que armazena a informação de um item no carrinho de compras!
 */
-double caulcula_preco_produtos (struct Produto *produto){
-    double preco = produto->preco;
-    double quantidade = produto->quantidade;
-
-    double soma = preco * quantidade;
-
-    return soma;
-}
+typedef struct CarrinhoItem {
+    int codigo;
+    char nome[50];
+    int quantidade;
+    double preco_unitario; 
+} CarrinhoItem;
 
 /*
     Função que recebe o pagamento do usuário e devolve o troco!
@@ -294,10 +321,474 @@ double devolve_troco (double pago, double total){
 }
 
 /*
-
+    Procedimento que atualiza a quantidade de um produto no arquivo products.txt.
+    Lê todos os produtos, atualiza a quantidade do produto específico em memória,
+    e depois reescreve todo o arquivo.
+    
+    @param codigo: Código do produto a ser atualizado.
+    @param quantidade_alterada: A quantidade a ser adicionada ou removida do estoque.
 */
 
+void atualizar_estoque(int codigo, int quantidade_alterada) { 
+    int total_produtos_no_arquivo = 0;
+    
+    struct Produto* todos_produtos = loadProducts(&total_produtos_no_arquivo); 
 
+    if (todos_produtos == NULL) {
+        printf("Nao foi possivel carregar produtos!\n");
+        return;
+    }
+
+    int produto_encontrado_no_array = 0;
+    for (int i = 0; i < total_produtos_no_arquivo; i++) {
+        if (todos_produtos[i].codigo == codigo) {
+            todos_produtos[i].quantidade += quantidade_alterada; 
+            
+            if (todos_produtos[i].quantidade < 0) {
+                todos_produtos[i].quantidade = 0; 
+                printf("Estoque ajustado para 0.\n");
+            }
+            produto_encontrado_no_array = 1;
+            break; 
+        }
+    }
+
+    if (!produto_encontrado_no_array) {
+        printf("Produto com codigo %d nao encontrado!\n", codigo);
+        free(todos_produtos);
+        return;
+    }
+
+    FILE *file = fopen("products.txt", "w"); 
+    if (file == NULL) {
+        perror("Erro ao reescrever o arquivo products.txt");
+        free(todos_produtos);
+        return;
+    }
+
+    for (int i = 0; i < total_produtos_no_arquivo; i++) {
+        fprintf(file, "%s;%.2lf;%d;%d\n", todos_produtos[i].nome, todos_produtos[i].preco, 
+                todos_produtos[i].quantidade, todos_produtos[i].codigo);
+    }
+
+    fclose(file);
+    free(todos_produtos); 
+}
+
+/*
+    Procedimento que adiciona os produtos ao carrinho de compra!
+    Além disso, atualiza o valor do produto em products.txt!
+
+    @param codigo: Código referente ao produto.
+    @param nome: Nome do produto.
+    @param quantidade: Quantidade do produto a ser adicionada ao carrinho.
+    @param preco: Preço unitário do produto.
+*/
+void adicionar_ao_carrinho(int codigo, const char* nome, int quantidade, double preco) {
+    FILE *file = fopen("carrinho.txt", "a"); 
+    if (file == NULL) {
+        perror("Erro ao abrir o arquivo de carrinho!");
+        return;
+    }
+
+    fprintf(file, "%d;%s;%d;%.2f\n", codigo, nome, quantidade, preco);
+    fclose(file);  
+
+    atualizar_estoque(codigo, -quantidade); 
+    printf("\n-------------------------------------------\n");
+    printf("(Qtd %d) %s adicionado ao carrinho!\n", quantidade, nome);
+}
+
+/*
+    Função que exibe todos os produtos no carrinho de compras.
+
+    @returns total_carrinho: Preço total da compra.
+*/
+double exibir_carrinho() {
+    FILE *file = fopen("carrinho.txt", "r");
+    if (file == NULL) {
+        printf("Carrinho vazio!\n");
+        return 0;
+    }
+
+    printf("\n\t\t--- SEU CARRINHO DE COMPRAS ---\n\n");
+    char linha[200];
+    int item_count = 0;
+    double total_carrinho = 0.0;
+
+    printf("%-5s %-30s %-10s %-10s %-10s\n", "Cod.", "Nome", "Preço Unit.", "Qtd", "Subtotal");
+    printf("-------------------------------------------------------------------\n");
+
+    while (fgets(linha, sizeof(linha), file) != NULL) {
+        linha[strcspn(linha, "\n")] = '\0'; 
+        if (strlen(linha) == 0) continue;
+
+        CarrinhoItem item;
+        char *token;
+        char temp_line[200]; 
+        strcpy(temp_line, linha);
+
+        token = strtok(temp_line, ";");
+
+        if (token) 
+            item.codigo = atoi(token); 
+        else 
+            continue;
+
+        token = strtok(NULL, ";");
+
+        if (token) 
+            strcpy(item.nome, token); 
+        else 
+            continue;
+
+        token = strtok(NULL, ";");
+
+        if (token) 
+            item.quantidade = atoi(token); 
+        else 
+            continue;
+
+        token = strtok(NULL, ";");
+
+        if (token) 
+            item.preco_unitario = atof(token); 
+        else 
+            continue;
+        
+        double subtotal = item.quantidade * item.preco_unitario;
+        total_carrinho += subtotal;
+        item_count++;
+
+        printf("%-5d %-30s R$%-9.2f %-10d R$%-9.2f\n", item.codigo, item.nome, item.preco_unitario, item.quantidade, subtotal);
+    }
+    printf("-------------------------------------------------------------------\n");
+    printf("Total do Carrinho: R$%.2f\n", total_carrinho);
+    printf("-------------------------------------------------------------------\n");
+    
+    fclose(file);
+    if (item_count == 0) {
+        printf("O carrinho está vazio!\n");
+    }
+
+    return total_carrinho;
+}
+
+/*
+    Procedimento que remove ou diminui a quantidade de produtos do carrinho!
+    Além disso, atualiza a quantidade em products.txt.
+*/
+void remover_produto() {
+    int car_tam = 0;
+    CarrinhoItem* car_item = NULL;
+    int capacidade = 2; 
+    car_item = malloc(capacidade * sizeof(CarrinhoItem));
+    if (car_item == NULL) {
+        perror("Erro ao alocar memória para itens do carrinho!");
+        return;
+    }
+
+    FILE *file = fopen("carrinho.txt", "r");
+    if (file == NULL) {
+        printf("O carrinho esta vazio!\n");
+        free(car_item);
+        return;
+    }
+
+    char linha[200];
+    while (fgets(linha, sizeof(linha), file) != NULL) {
+        linha[strcspn(linha, "\n")] = '\0';
+        if (strlen(linha) == 0) continue;
+
+        if (car_tam == capacidade) {
+            capacidade *= 2;
+            CarrinhoItem *temp = realloc(car_item, capacidade * sizeof(CarrinhoItem));
+            if (temp == NULL) {
+                perror("Erro ao realocar memoria para itens do carrinho!");
+                free(car_item);
+                fclose(file);
+                return;
+            }
+            car_item = temp;
+        }
+
+        char *token;
+        char temp_line[200];
+        strcpy(temp_line, linha);
+
+        token = strtok(temp_line, ";");
+
+        if (token) 
+            car_item[car_tam].codigo = atoi(token); 
+        else 
+            continue;
+
+        token = strtok(NULL, ";");
+
+        if (token)
+            strcpy(car_item[car_tam].nome, token); 
+        else 
+            continue;
+
+        token = strtok(NULL, ";");
+
+        if (token) 
+            car_item[car_tam].quantidade = atoi(token); 
+        else 
+            continue;
+
+        token = strtok(NULL, ";");
+
+        if (token) 
+            car_item[car_tam].preco_unitario = atof(token); 
+        else 
+            continue;
+
+        car_tam++;
+    }
+    fclose(file);
+
+    if (car_tam == 0) {
+        printf("O carrinho está vazio!\n");
+        free(car_item);
+        return;
+    }
+
+    int codigo_remover;
+    printf("\nDigite o código do produto que deseja remover ou diminuir a quantidade (-1 para cancelar):\n> ");
+    scanf("%d", &codigo_remover);
+
+    if (codigo_remover == -1) {
+        printf("Remoção cancelada.\n");
+        free(car_item);
+        return;
+    }
+
+    int item_index = -1;
+    for (int i = 0; i < car_tam; i++) {
+        if (car_item[i].codigo == codigo_remover) {
+            item_index = i;
+            break;
+        }
+    }
+
+    if (item_index == -1) {
+        printf("Produto com código %d não encontrado no carrinho!\n", codigo_remover);
+        free(car_item);
+        return;
+    }
+
+    int devolver_quantidade; 
+    printf("%s encontrado.\n", car_item[item_index].nome);
+    printf("Quantas unidades deseja remover do carrinho? (0 para remover todo o item):\n> ");
+    scanf("%d", &devolver_quantidade);
+
+    if (devolver_quantidade < 0) {
+        printf("Quantidade inválida. Operação cancelada.\n");
+        free(car_item);
+        return;
+    }
+
+    if (devolver_quantidade >= car_item[item_index].quantidade || devolver_quantidade == 0) {
+        int qtd_original = car_item[item_index].quantidade;
+        
+        for (int i = item_index; i < car_tam - 1; i++) {
+            car_item[i] = car_item[i+1];
+        }
+        car_tam--; 
+        printf("{%s} totalmente removido do carrinho.\n", car_item[item_index].nome);
+        
+        atualizar_estoque(codigo_remover, qtd_original); 
+    } else {
+        car_item[item_index].quantidade -= devolver_quantidade;
+        printf("%d unidades de {%s} removidas do carrinho. Restam %d.\n", 
+               devolver_quantidade, car_item[item_index].nome, car_item[item_index].quantidade);
+        
+        atualizar_estoque(codigo_remover, devolver_quantidade);
+    }
+
+    
+    file = fopen("carrinho.txt", "w"); 
+    if (file == NULL) {
+        perror("Erro ao reescrever o arquivo de carrinho!");
+        free(car_item);
+        return;
+    }
+
+    for (int i = 0; i < car_tam; i++) {
+        fprintf(file, "%d;%s;%d;%.2f\n", car_item[i].codigo, car_item[i].nome, 
+                car_item[i].quantidade, car_item[i].preco_unitario);
+    }
+    fclose(file);
+    free(car_item);
+    printf("Carrinho atualizado com sucesso!\n");
+}
+
+/*
+    Função para finalizar ou remover produto do carrinho.
+    O programa retorna 1 se o usuário realizou o pagamento.
+*/
+
+int finalizar_compra(){
+
+
+
+    double total = exibir_carrinho();
+    
+    if (total == 0)
+        return 0;
+
+    int escolha;
+    printf("\n\nVoce deseja\n[1] Realizar o pagamento\n[2] Remover produto\n[3] Voltar> ");
+    scanf("%d", &escolha);
+
+    if (escolha == 3)
+        return 0;
+
+    while (escolha <= 1 && escolha >= 2){
+        printf("\nPor favor, digite uma das opções válidas:\n> ");
+        scanf("%d", &escolha);
+    }
+
+    if (escolha == 1){
+        double valor_pago;
+
+        printf("\nValor total R$ %.2f.\nDigite o valor a ser pago:\n> ", total);
+        scanf("%lf", &valor_pago);
+
+        double troco = devolve_troco(valor_pago, total);
+
+        while (troco == -1){
+            printf("\nDigite um valor valido:\n> ");
+            scanf("%lf", &valor_pago);
+            troco = devolve_troco(valor_pago, total);
+        }
+        
+        system("clear");
+
+        printf("\nProcessando o pagamento...\n");
+
+        printf("O seu troco foi de R$ %.2f.\nVolte sempre!!\n\n", troco);
+        return 1;
+    }
+    else
+        remover_produto();
+}
+
+/*
+    Procedimento para adicionar quantidades de um produto no modo administrador!
+*/
+void adicionar_quantidade_estoque_admin() {
+    system("clear");
+    printf("\n\t\t--- ADICIONAR QUANTIDADE AO ESTOQUE ---\n");
+
+    int qtd_total_produtos = 0;
+    struct Produto* produtos = loadProducts(&qtd_total_produtos); 
+
+    if (produtos == NULL || qtd_total_produtos == 0) {
+        printf("Nenhum produto cadastrado no sistema!\n");
+        if (produtos != NULL) free(produtos);
+        return;
+    }
+
+    int codigo_produto;
+    printf("Digite o codigo do produto para adicionar estoque:\n> ");
+    scanf("%d", &codigo_produto);
+
+    struct Produto produto_encontrado = buscar_produto_por_codigo(produtos, qtd_total_produtos, codigo_produto);
+    free(produtos); 
+
+    if (produto_encontrado.codigo == -1) {
+        printf("Produto com codigo %d nao encontrado.\n", codigo_produto);
+        return;
+    }
+
+    int quantidade_a_adicionar;
+    printf("Produto encontrado: {%s} (Estoque atual: %d)\n", produto_encontrado.nome, produto_encontrado.quantidade);
+    printf("Digite a quantidade a ser adicionada ao estoque:\n> ");
+    scanf("%d", &quantidade_a_adicionar);
+
+    if (quantidade_a_adicionar <= 0) {
+        printf("Quantidade invalida!\n");
+        return;
+    }
+
+    atualizar_estoque(codigo_produto, quantidade_a_adicionar);
+    printf("Estoque do produto {%s} (codigo %d) atualizado. Quantidade adicionada: %d.\n", produto_encontrado.nome, codigo_produto, quantidade_a_adicionar);
+}
+
+/*  
+    Procedimento que permite ao administrador remover uma quantidade do estoque de um produto existente,
+    ou remover o produto completamente.
+*/
+void remover_quantidade_estoque_admin() {
+    system("clear");
+    printf("\n\t\t--- REMOVER QUANTIDADE DO ESTOQUE ---\n");
+
+    int qtd_total_produtos = 0;
+    struct Produto* produtos = loadProducts(&qtd_total_produtos); 
+
+    if (produtos == NULL || qtd_total_produtos == 0) {
+        printf("Nenhum produto cadastrado no sistema!\n");
+        if (produtos != NULL) free(produtos);
+        return;
+    }
+
+    int codigo_produto;
+    printf("Digite o codigo do produto para remover do estoque (ou -1 para cancelar):\n> ");
+    scanf("%d", &codigo_produto);
+
+    if (codigo_produto == -1) {
+        printf("Operacao cancelada!\n");
+        free(produtos);
+        return;
+    }
+
+    struct Produto produto_encontrado = buscar_produto_por_codigo(produtos, qtd_total_produtos, codigo_produto);
+
+    if (produto_encontrado.codigo == -1) {
+        printf("Produto com codigo %d nao encontrado!\n", codigo_produto);
+        free(produtos);
+        return;
+    }
+
+    int quantidade_a_remover;
+    printf("Produto encontrado: %s (quantidade atual: %d)\n", produto_encontrado.nome, produto_encontrado.quantidade);
+    printf("Quantas unidades deseja remover? (0 para remover todo o produto):\n> ");
+    scanf("%d", &quantidade_a_remover);
+
+    if (quantidade_a_remover < 0) {
+        printf("Quantidade invalida!\n");
+        free(produtos);
+        return;
+    }
+
+    if (quantidade_a_remover == 0 || quantidade_a_remover >= produto_encontrado.quantidade) {
+        printf("Removendo {%s} (codigo %d) completamente do estoque!\n", produto_encontrado.nome, codigo_produto);
+        
+        FILE *file = fopen("products.txt", "w"); 
+        if (file == NULL) {
+            perror("Erro ao reescrever o arquivo products.txt");
+            free(produtos);
+            return;
+        }
+
+        for (int i = 0; i < qtd_total_produtos; i++) {
+            if (produtos[i].codigo != codigo_produto) { 
+                fprintf(file, "%s;%.2lf;%d;%d\n", produtos[i].nome, produtos[i].preco, 
+                        produtos[i].quantidade, produtos[i].codigo);
+            }
+        }
+        fclose(file);
+        printf("{%s} removido do estoque.\n", produto_encontrado.nome);
+
+    } else {
+        atualizar_estoque(codigo_produto, -quantidade_a_remover); 
+        printf("Estoque do produto {%s} atualizado. Quantidade removida: %d.\n", produto_encontrado.nome, quantidade_a_remover);
+    }
+    
+    free(produtos); 
+}
 
 // Salva um usuário no arquivo users.txt
 void saveUser(struct User u) {
