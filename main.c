@@ -188,6 +188,8 @@ int main() {
             
             } else if (c == 6){
                 editar_usuario();
+            } else {
+                printf("Digite uma opção válida!");
             }
         }
 
