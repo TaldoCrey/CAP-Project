@@ -918,3 +918,15 @@ void editar_usuario() {
     printf("Senha atualizada com sucesso!\n");
     free(usuarios);
 }
+
+/*
+    Função que edita qualquer informação de um produto desejado
+*/
+
+void editar_produto(int *qtd) {
+
+    struct Produto* prods = loadProducts(*qtd);
+
+    
+
+}

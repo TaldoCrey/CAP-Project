@@ -193,7 +193,6 @@ int main() {
             }
         }
 
-        
         free(produtos);
     }
 }
