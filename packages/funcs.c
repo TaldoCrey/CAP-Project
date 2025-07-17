@@ -163,13 +163,15 @@ struct Produto* adicionar_produtos(int *qtd) {
     @param produtos: Lista que contém os conteineres de cada produto!
 */
 void mostrar_produtos(int qtd, struct Produto* produtos) {
-    printf("Mostrando todos os produtos!\n");
-    
-    for(int j = 0; j < qtd; j++) {
-        struct Produto prod = produtos[j];
-        printf("-----------------------------------------------\n");
-        printf("Nome: %s\nPreco: R$%.2lf\nQtd.: %d\nCod.: %d\n", prod.nome, prod.preco, prod.quantidade, prod.codigo);
-        printf("-----------------------------------------------\n");
+    if (qtd > 0){
+        printf("Mostrando todos os produtos!\n");
+
+        for(int j = 0; j < qtd; j++) {
+            struct Produto prod = produtos[j];
+            printf("-----------------------------------------------\n");
+            printf("Nome: %s\nPreco: R$%.2lf\nQtd.: %d\nCod.: %d\n", prod.nome, prod.preco, prod.quantidade, prod.codigo);
+            printf("-----------------------------------------------\n");
+        }
     }
 }
 
@@ -940,7 +942,7 @@ void editar_produto(int *qtd) {
         scanf("%d", &edit_product_code);
         struct Produto edit_product = buscar_produto_por_codigo(produtos, *qtd, edit_product_code);
         printf("---- Informacoes do Produto a ser Editado ----\n");
-        printf("Nome | Preco ");
+        printf("Nome | Preco\n");
         printf("%s | %.2lf \n", edit_product.nome, edit_product.preco);
         printf("-----------------------------------\n");
         while (1) {
@@ -995,16 +997,17 @@ void editar_produto(int *qtd) {
         if (choice_3 == 1) {
             continue;
         } else {
-            FILE *reset = fopen(".\\products.txt", "w+");
+            FILE *reset = fopen("products.txt", "w");
             if (reset == NULL) {
                 printf("{O arquivo que armazena os produtos ainda não foi criado, e, portanto, não pode ser resetado!}");
             }
+            
             fclose(reset);
             
             for (int h = 0; h < *qtd; h++) {
                 saveProduct(produtos[h]);
             }
-            printf("Alteracoes salvas com sucesso!");
+            printf("Alteracoes salvas com sucesso!\n");
             break;
         }
     }

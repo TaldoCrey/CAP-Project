@@ -143,7 +143,7 @@ int main() {
         int qtd = 0;
         struct Produto* produtos = loadProducts(&qtd);
 
-        while (c != 8) {
+        while (1) {
             printf("---------------------------------------\n");
             printf("Selecione uma Opcao:\n[1] Adicionar Produtos\t[2] Adicionar Usuario\n[3] Alterar estoque\t[4] Editar Produto\n[5] Editar Usuario\t[6] Ver Todos os Produtos\n[7] Editar Usuario do Sistema\t[8]Sair\n");
             printf(">_: ");
@@ -163,7 +163,7 @@ int main() {
                 system("clear");
 
                 int escolha_adm;
-                printf("Cod##Nome do Produto ..... Quantidade");
+                printf("Cod##Nome do Produto ..... Quantidade\n");
                 for (int index = 0; index < qtd; index++) {
                     printf("%d##%s .......... %d\n", produtos[index].codigo, produtos[index].nome, produtos[index].quantidade);
                 }
@@ -184,6 +184,8 @@ int main() {
                 } else {
                     remover_quantidade_estoque_admin();
                 }
+
+                produtos = loadProducts(&qtd);
             } else if (c == 4) {
                 system("cls");
                 editar_produto(&qtd);
@@ -197,8 +199,12 @@ int main() {
             
             } else if (c == 7){
                 editar_usuario();
+            } else if (c == 8) {
+                printf("Encerrando Aplicação!\n");
+                break;
+
             } else {
-                printf("Digite uma opcao valida!");
+                printf("Digite uma opcao valida!\n");
             }
         }
         free(produtos);
