@@ -51,7 +51,7 @@ int main() {
                 int qtd = 0;
                 struct Produto* produtos = loadProducts(&qtd);
                 mostrar_produtos(qtd, produtos);
-                
+
                 if (produtos == NULL && qtd == 0) {
                     printf("Nenhum produto cadastrado no sistema.\n");
                     continue; 
@@ -65,7 +65,6 @@ int main() {
 
                 int sair_compra = 0;
                 while (codigo != -1){
-                    system("clear");
 
                     if (produtos != NULL) {
                         free(produtos); 
@@ -123,7 +122,6 @@ int main() {
                 int finalizou = finalizar_compra();
                 if (finalizou){
                     remove("carrinho.txt");
-                    return 0;
                 }
                 break;
             case 3:
@@ -131,7 +129,7 @@ int main() {
                 editar_usuario();
                 break;
             case 4:
-                printf("Saindo do Modo CAIXA...\n");
+                printf("Encerrando Aplicação...\n");
                 break;
             default:
                 printf("Opcao invalida. Tente novamente.\n");
