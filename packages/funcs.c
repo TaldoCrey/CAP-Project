@@ -12,12 +12,14 @@ int cod = 0;
     @param preco: Preço do Produto!
     @param codigo: Código deidentificação do protudo!
     @param quantidade: Quantidade do Produto no estoque!
+    @param valor_promo: O preço promocional do produto!
 */
 typedef struct Produto {
     char nome[50];
     double preco;
     int codigo;
     int quantidade;
+    double valor_promo;
 } prod;
 
 /*
@@ -86,7 +88,7 @@ void saveProduct(struct Produto produto) {
     }
 
 
-    fprintf(data_f, "%s;%.2lf;%d;%d\n", produto.nome, produto.preco, produto.quantidade, produto.codigo);
+    fprintf(data_f, "%s;%.2lf;%d;%d;%.2lf\n", produto.nome, produto.preco, produto.quantidade, produto.codigo, produto.valor_promo);
     printf("{%s} foi adicionado ao banco de dados!\n", produto.nome);
 
     fclose(data_f);
@@ -163,17 +165,21 @@ struct Produto* adicionar_produtos(int *qtd) {
     @param produtos: Lista que contém os conteineres de cada produto!
 */
 void mostrar_produtos(int qtd, struct Produto* produtos) {
-    if (qtd > 0){
-        printf("Mostrando todos os produtos!\n");
-
-        for(int j = 0; j < qtd; j++) {
-            struct Produto prod = produtos[j];
-            printf("-----------------------------------------------\n");
-            printf("Nome: %s\nPreco: R$%.2lf\nQtd.: %d\nCod.: %d\n", prod.nome, prod.preco, prod.quantidade, prod.codigo);
-            printf("-----------------------------------------------\n");
+    printf("Mostrando todos os produtos!\n");
+    
+    for(int j = 0; j < qtd; j++) {
+        struct Produto prod = produtos[j];
+        printf("-----------------------------------------------\n");
+        printf("Nome: %s", prod.nome);
+        if(prod.valor_promo > 0) {
+            printf("\nPromocao! \nDe: R$%.2lf\nPor: RS%.2lf"
+                "\nQtd.: %d\nCod.: %d\n", prod.preco, prod.valor_promo, prod.quantidade, prod.codigo);
         }
+        else printf("\nPreco: R$%.2lf\nQtd.: %d\nCod.: %d\n", prod.preco, prod.quantidade, prod.codigo);
+        printf("-----------------------------------------------\n");
     }
 }
+
 
 /*
     Função que carrega os produtos armazenados no arquivo
@@ -223,6 +229,7 @@ struct Produto* loadProducts(int *qtd) {
         double preco;
         int quant;
         int codigo_prod = -1;
+        double preco_promo;
 
         char temp_linha[200];
         strcpy(temp_linha, linha);
@@ -255,10 +262,18 @@ struct Produto* loadProducts(int *qtd) {
         else
             codigo_prod = cod;
 
+        it = strtok(NULL, del);
+
+        if(it)
+            sscanf(it, "%lf", &preco_promo);
+        else 
+            continue;
+
         strcpy(prods[*qtd].nome, nome);
         prods[*qtd].preco = preco;
         prods[*qtd].quantidade = quant;
         prods[*qtd].codigo = codigo_prod;
+        prods[*qtd].valor_promo = preco_promo;
 
         if (codigo_prod > maior_codigo) {
             maior_codigo = codigo_prod;
@@ -289,6 +304,7 @@ struct Produto buscar_produto_por_codigo(struct Produto* lista, int qtd, int cod
     not_found.preco = 0;
     not_found.quantidade = 0;
     not_found.codigo = -1;
+    not_found.valor_promo = 0;
     return not_found;
 }
 
@@ -368,8 +384,8 @@ void atualizar_estoque(int codigo, int quantidade_alterada) {
     }
 
     for (int i = 0; i < total_produtos_no_arquivo; i++) {
-        fprintf(file, "%s;%.2lf;%d;%d\n", todos_produtos[i].nome, todos_produtos[i].preco, 
-                todos_produtos[i].quantidade, todos_produtos[i].codigo);
+        fprintf(file, "%s;%.2lf;%d;%d;%.2lf\n", todos_produtos[i].nome, todos_produtos[i].preco, 
+                todos_produtos[i].quantidade, todos_produtos[i].codigo, todos_produtos[i].valor_promo);
     }
 
     fclose(file);
@@ -384,16 +400,21 @@ void atualizar_estoque(int codigo, int quantidade_alterada) {
     @param nome: Nome do produto.
     @param quantidade: Quantidade do produto a ser adicionada ao carrinho.
     @param preco: Preço unitário do produto.
+    @para preco_promo: Preço promocional do produto
 */
-void adicionar_ao_carrinho(int codigo, const char* nome, int quantidade, double preco) {
+void adicionar_ao_carrinho(int codigo, const char* nome, int quantidade, double preco, double preco_promo) {
     FILE *file = fopen("carrinho.txt", "a"); 
     if (file == NULL) {
         perror("Erro ao abrir o arquivo de carrinho!");
         return;
     }
 
-    fprintf(file, "%d;%s;%d;%.2f\n", codigo, nome, quantidade, preco);
+    if(preco_promo == 0){
+        fprintf(file, "%d;%s;%d;%.2f\n", codigo, nome, quantidade, preco);
+    }
+    else fprintf(file, "%d;%s;%d;%.2f\n", codigo, nome, quantidade, preco_promo);
     fclose(file);  
+
 
     atualizar_estoque(codigo, -quantidade); 
     printf("\n-------------------------------------------\n");
@@ -774,8 +795,8 @@ void remover_quantidade_estoque_admin() {
 
         for (int i = 0; i < qtd_total_produtos; i++) {
             if (produtos[i].codigo != codigo_produto) { 
-                fprintf(file, "%s;%.2lf;%d;%d\n", produtos[i].nome, produtos[i].preco, 
-                        produtos[i].quantidade, produtos[i].codigo);
+                fprintf(file, "%s;%.2lf;%d;%d;%2.lf\n", produtos[i].nome, produtos[i].preco, 
+                        produtos[i].quantidade, produtos[i].codigo, produtos[i].valor_promo);
             }
         }
         fclose(file);
@@ -942,11 +963,11 @@ void editar_produto(int *qtd) {
         scanf("%d", &edit_product_code);
         struct Produto edit_product = buscar_produto_por_codigo(produtos, *qtd, edit_product_code);
         printf("---- Informacoes do Produto a ser Editado ----\n");
-        printf("Nome | Preco\n");
-        printf("%s | %.2lf \n", edit_product.nome, edit_product.preco);
+        printf("Nome | Preco | Preco proomcional\n");
+        printf("%s | %.2lf | %.2lf\n", edit_product.nome, edit_product.preco, edit_product.valor_promo);
         printf("-----------------------------------\n");
         while (1) {
-            printf("Informe qual informacao voce deseja alterar:\n[1] Nome\t[2] Preco\t[3] Voltar\n");
+            printf("Informe qual informacao voce deseja alterar:\n[1] Nome\t[2] Preco\t[3]Valor promocional\t[4] Voltar\n");
             int choice;
             scanf("%d", &choice);
 
@@ -964,8 +985,13 @@ void editar_produto(int *qtd) {
                 scanf("%lf", &new_price);
                 edit_product.preco = new_price;
                 printf("Preço alterado com sucesso!\n");
-
-            }else if (choice == 3) {
+            
+            } else if (choice == 3){
+                double new_promo;
+                printf("Insira o valor promocional desejado: ");
+                scanf("%lf", &new_promo);
+                edit_product.valor_promo = new_promo;
+            }else if (choice == 4) {
 
                 printf("Retornando...");
                 break;
@@ -988,6 +1014,7 @@ void editar_produto(int *qtd) {
             if (produtos[j].codigo == edit_product.codigo) {
                 strcpy(produtos[j].nome, edit_product.nome);
                 produtos[j].preco = edit_product.preco;
+                produtos[j].valor_promo =  edit_product.valor_promo;
                 break;
             }
         }
@@ -1012,3 +1039,6 @@ void editar_produto(int *qtd) {
         }
     }
 }
+
+
+void pagar_fiado(); 

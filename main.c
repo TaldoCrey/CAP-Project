@@ -88,7 +88,8 @@ int main() {
                     }
                     else{
                         int quantidade_a_comprar;
-                        printf("\n(%d)  %s  R$%.2f\n", produto_encontrado.codigo, produto_encontrado.nome, produto_encontrado.preco);
+                        printf("\n(%d)  %s  R$%.2f\n", produto_encontrado.codigo, produto_encontrado.nome, 
+                                    produto_encontrado.valor_promo > 0 ? produto_encontrado.valor_promo : produto_encontrado.preco);
                         printf("Quantidade no estoque: %d\n\n", produto_encontrado.quantidade);
                         printf("Digite a quantidade de unidades a ser comprada:\n> ");
                         scanf("%d", &quantidade_a_comprar);
@@ -104,7 +105,7 @@ int main() {
                             scanf("%d", &quantidade_a_comprar);
                         }
 
-                        adicionar_ao_carrinho(produto_encontrado.codigo, produto_encontrado.nome, quantidade_a_comprar, produto_encontrado.preco);
+                        adicionar_ao_carrinho(produto_encontrado.codigo, produto_encontrado.nome, quantidade_a_comprar, produto_encontrado.preco, produto_encontrado.valor_promo);
     
                         printf("\nAdicionando %d unidades de %s ao carrinho...", quantidade_a_comprar, produto_encontrado.nome);
                         printf("\n---------------------------------------\n");
