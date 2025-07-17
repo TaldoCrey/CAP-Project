@@ -48,9 +48,10 @@ int main() {
             {
             case 1:
                 system("clear"); 
-
                 int qtd = 0;
                 struct Produto* produtos = loadProducts(&qtd);
+                mostrar_produtos(qtd, produtos);
+                
                 if (produtos == NULL && qtd == 0) {
                     printf("Nenhum produto cadastrado no sistema.\n");
                     continue; 
