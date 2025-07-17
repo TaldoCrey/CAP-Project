@@ -789,19 +789,23 @@ void remover_quantidade_estoque_admin() {
     free(produtos); 
 }
 
-// Salva um usuário no arquivo users.txt
-void saveUser(struct User u) {
+/*
+    Função que salva um usuário
+
+    @param usuario: Container que contém as informações do usuário que será adicionado.
+*/
+void saveUser(struct User usuario) {
     FILE *file = fopen(".//users.txt", "a");
     if (file == NULL) {
         file = fopen(".//users.txt", "w");
         if (file == NULL) {
-            perror("Erro ao criar arquivo de usuários!");
+            perror("Erro ao criar arquivo de usuarios!");
             return;
         }
     }
 
-    fprintf(file, "%s;%s;%d\n", u.login, u.password, u.userID);
-    printf("Usuário {%s} foi salvo no banco de dados!\n", u.login);
+    fprintf(file, "%s;%s;%d\n", usuario.login, usuario.password, usuario.userID);
+    printf("Usuario {%s} foi salvo no banco de dados!\n", usuario.login);
     fclose(file);
 }
 
@@ -816,7 +820,7 @@ struct User* loadUsers(int *n) {
     int capacidade = 4;
     struct User *usuarios = malloc(capacidade * sizeof(struct User));
     if (usuarios == NULL) {
-        perror("Erro de memória ao carregar usuários!");
+        perror("Erro de memoria ao carregar usuarios!");
         return NULL;
     }
 
@@ -828,7 +832,7 @@ struct User* loadUsers(int *n) {
             capacidade *= 2;
             struct User *temp = realloc(usuarios, capacidade * sizeof(struct User));
             if (temp == NULL) {
-                perror("Erro ao realocar usuários!");
+                perror("Erro ao realocar usuarios!");
                 free(usuarios);
                 fclose(file);
                 return NULL;
@@ -860,7 +864,7 @@ void adicionar_usuario() {
     char senha[20];
 
     getchar();
-    printf("Digite o login do novo usuário: ");
+    printf("Digite o login do novo usuario: ");
     fgets(login, sizeof login, stdin);
     login[strcspn(login, "\n")] = '\0';
 
@@ -886,25 +890,25 @@ void editar_usuario() {
         printf("[%d] Login: %s | ID: %d\n", i, usuarios[i].login, usuarios[i].userID);
     }
 
-    printf("Digite o número do usuário que deseja editar: ");
+    printf("Digite o numero do usuario que deseja editar: ");
     int escolha;
     scanf("%d", &escolha);
     getchar();
 
     if (escolha < 0 || escolha >= qtd) {
-        printf("Usuário inválido!\n");
+        printf("Usuario invalido!\n");
         free(usuarios);
         return;
     }
 
-    printf("Digite a nova senha para o usuário %s: ", usuarios[escolha].login);
+    printf("Digite a nova senha para o usuario %s: ", usuarios[escolha].login);
     fgets(usuarios[escolha].password, sizeof(usuarios[escolha].password), stdin);
     usuarios[escolha].password[strcspn(usuarios[escolha].password, "\n")] = '\0';
 
     // Sobrescreve o arquivo com todos os usuários atualizados
     FILE *file = fopen(".//users.txt", "w");
     if (file == NULL) {
-        perror("Erro ao reescrever usuários!");
+        perror("Erro ao reescrever usuarios!");
         free(usuarios);
         return;
     }
@@ -933,16 +937,16 @@ void editar_produto(int *qtd) {
             printf("%d##%s\n", produtos[i].codigo, produtos[i].nome);
         }
 
-        printf("Digite o código do produto que você deseja alterar: ");
+        printf("Digite o codigo do produto que voce deseja alterar: ");
         int edit_product_code;
         scanf("%d", &edit_product_code);
         struct Produto edit_product = buscar_produto_por_codigo(produtos, *qtd, edit_product_code);
-        printf("---- Informações do Produto a ser Editado ----\n");
+        printf("---- Informacoes do Produto a ser Editado ----\n");
         printf("Nome | Preco ");
         printf("%s | %.2lf \n", edit_product.nome, edit_product.preco);
         printf("-----------------------------------\n");
         while (1) {
-            printf("Informe qual informação você deseja alterar:\n[1] Nome\t[2] Preco\n");
+            printf("Informe qual informacao voce deseja alterar:\n[1] Nome\t[2] Preco\n");
             int choice;
             scanf("%d", &choice);
 
@@ -961,11 +965,11 @@ void editar_produto(int *qtd) {
                 edit_product.preco = new_price;
                 printf("Preço alterado com sucesso!\n");
             } else {
-                printf("Escolha uma opção válida!");
+                printf("Escolha uma opcao valida!");
                 continue;
             }
 
-            printf("Você deseja alterar alguma outra informação? [1] S / [2] N\n");
+            printf("Voce deseja alterar alguma outra informacao? [1] S / [2] N\n");
             int choice_2;
             scanf("%d", &choice_2);
             if (choice_2 == 1) {
@@ -981,7 +985,7 @@ void editar_produto(int *qtd) {
                 break;
             }
         }
-        printf("Você deseja alterar a informação de algum outro produto? [1] S / [2] N\n");
+        printf("Voce deseja alterar a informacao de algum outro produto? [1] S / [2] N\n");
         int choice_3;
         scanf("%d", &choice_3);
         if (choice_3 == 1) {
@@ -997,7 +1001,7 @@ void editar_produto(int *qtd) {
             for (int h = 0; h < *qtd; h++) {
                 saveProduct(produtos[h]);
             }
-            printf("Alterações salvas com sucesso!");
+            printf("Alteracoes salvas com sucesso!");
             break;
         }
     }

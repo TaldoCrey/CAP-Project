@@ -145,7 +145,7 @@ int main() {
 
         while (c != 8) {
             printf("---------------------------------------\n");
-            printf("Selecione uma Opção:\n[1] Adicionar Produtos\t[2] Adicionar Usuário\n[3] Alterar estoque\t[4] Editar Produto\n[5] Editar Usuário\t[6] Ver Todos os Produtos\n[7] Editar Usuário do Sistema\t[8] Sair\n");
+            printf("Selecione uma Opcao:\n[1] Adicionar Produtos\t[2] Adicionar Usuario\n[3] Alterar estoque\t[4] Editar Produto\n[5] Editar Usuario\t[6] Ver Todos os Produtos\n[7] Editar Usuario do Sistema\t[8]Sair\n");
             printf(">_: ");
             scanf("%d", &c);
             
@@ -163,7 +163,7 @@ int main() {
                 system("clear");
 
                 int escolha_adm;
-                printf("Selecione uma Opção:\n[1] Adicionar Produtos ao Estoque\n[2] Remover produtos ao Estoque\n[3] Voltar\n> ");
+                printf("Selecione uma Opcao:\n[1] Adicionar Produtos ao Estoque\n[2] Remover produtos ao Estoque\n[3] Voltar\n> ");
                 scanf("%d", &escolha_adm);
 
                 if (escolha_adm == 3)
@@ -193,7 +193,7 @@ int main() {
             } else if (c == 7){
                 editar_usuario();
             } else {
-                printf("Digite uma opção válida!");
+                printf("Digite uma opcao valida!");
             }
         }
         free(produtos);
