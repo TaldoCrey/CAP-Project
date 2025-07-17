@@ -192,7 +192,7 @@ struct Produto* loadProducts(int *qtd) {
     FILE * data_f = fopen(".//products.txt", "r");
 
     if (data_f == NULL) {
-        perror("Erro ao carregar produtos!");
+        printf("{Nenhum produto foi adicionado!}");
         return prods;
     }
 
@@ -944,7 +944,7 @@ void editar_produto(int *qtd) {
         printf("%s | %.2lf \n", edit_product.nome, edit_product.preco);
         printf("-----------------------------------\n");
         while (1) {
-            printf("Informe qual informacao voce deseja alterar:\n[1] Nome\t[2] Preco\n");
+            printf("Informe qual informacao voce deseja alterar:\n[1] Nome\t[2] Preco\t[3] Voltar\n");
             int choice;
             scanf("%d", &choice);
 
@@ -962,6 +962,12 @@ void editar_produto(int *qtd) {
                 scanf("%lf", &new_price);
                 edit_product.preco = new_price;
                 printf("Preço alterado com sucesso!\n");
+
+            }else if (choice == 3) {
+
+                printf("Retornando...");
+                break;
+            
             } else {
                 printf("Escolha uma opcao valida!");
                 continue;
@@ -989,11 +995,10 @@ void editar_produto(int *qtd) {
         if (choice_3 == 1) {
             continue;
         } else {
-            FILE *reset = fopen(".\\products.txt", "w");
+            FILE *reset = fopen(".\\products.txt", "w+");
             if (reset == NULL) {
-                perror("Erro ao iniciar arquivo");
+                printf("{O arquivo que armazena os produtos ainda não foi criado, e, portanto, não pode ser resetado!}");
             }
-            fprintf(reset, "");
             fclose(reset);
             
             for (int h = 0; h < *qtd; h++) {
