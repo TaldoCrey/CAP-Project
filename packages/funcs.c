@@ -43,7 +43,6 @@ typedef struct User {
 
     @returns Um container contendo todas as informações do Produto!
 */
-
 struct Produto novo_produto(char nome[50], double preco, int quantidade) {
 
     prod new_prod;
@@ -79,7 +78,6 @@ struct User novo_usuario(char login[100], char senha[20]) {
 
     @param produtos: Lista contendo os produtos a serem armazenados!
 */
-
 void saveProduct(struct Produto produto) {
 
     FILE * data_f = fopen(".//products.txt", "a");
@@ -101,8 +99,6 @@ void saveProduct(struct Produto produto) {
 
     @returns Uma lista contendo conteineres de todos os produtos adicionados!
 */
-
-// (Bruno) Modifiquei a parte da contagem de quantidade
 struct Produto* adicionar_produtos(int *qtd) {
     int capacidade = 1;
     struct Produto *add_produtos = NULL;
@@ -166,7 +162,6 @@ struct Produto* adicionar_produtos(int *qtd) {
     @param qtd:(Quantidade) Informa a quantidade atual de produtos no estoque!
     @param produtos: Lista que contém os conteineres de cada produto!
 */
-
 void mostrar_produtos(int qtd, struct Produto* produtos) {
     printf("Mostrando todos os produtos!\n");
     
@@ -178,7 +173,12 @@ void mostrar_produtos(int qtd, struct Produto* produtos) {
     }
 }
 
-// (Bruno) Modifiquei a função para carregar e atualizar o código do produto
+/*
+    Função que carrega os produtos armazenados no arquivo
+
+    @param qtd: Quantidade total de produtos
+    @returns: Uma lista com todos o produtos já carregados
+*/
 struct Produto* loadProducts(int *qtd) {
     *qtd = 0;
     int capacidade = 2;
@@ -276,7 +276,6 @@ struct Produto* loadProducts(int *qtd) {
     @param codigo: Código de um produto!
     @returns produto: Retorna o produto referente ao código ou not_found caso nao encontre!
 */
-
 struct Produto buscar_produto_por_codigo(struct Produto* lista, int qtd, int codigo) {
     for (int i = 0; i < qtd; i++) {
         if (lista[i].codigo == codigo) {
@@ -921,12 +920,85 @@ void editar_usuario() {
 
 /*
     Função que edita qualquer informação de um produto desejado
+
+    @param qtd: Parâmetro que indica a quantidade total de produtos.
 */
 
 void editar_produto(int *qtd) {
 
-    struct Produto* prods = loadProducts(*qtd);
+    struct Produto* produtos = loadProducts(qtd);
+    while (1) {
+        printf("Cod.##Nome do Produto\n");
+        for (int i = 0; i < *qtd; i++) {
+            printf("%d##%s\n", produtos[i].codigo, produtos[i].nome);
+        }
 
-    
+        printf("Digite o código do produto que você deseja alterar: ");
+        int edit_product_code;
+        scanf("%d", &edit_product_code);
+        struct Produto edit_product = buscar_produto_por_codigo(produtos, *qtd, edit_product_code);
+        printf("---- Informações do Produto a ser Editado ----\n");
+        printf("Nome | Preco ");
+        printf("%s | %.2lf \n", edit_product.nome, edit_product.preco);
+        printf("-----------------------------------\n");
+        while (1) {
+            printf("Informe qual informação você deseja alterar:\n[1] Nome\t[2] Preco\n");
+            int choice;
+            scanf("%d", &choice);
 
+            if (choice == 1) {
+                char new_name[50];
+                printf("Digite o novo nome do produto: ");
+                getchar();
+                fgets(new_name, sizeof(new_name), stdin);
+                new_name[strcspn(new_name, "\n")] = '\0';
+                strcpy(edit_product.nome, new_name);
+                printf("Nome alterado com sucesso!\n");
+            } else if (choice == 2) {
+                double new_price;
+                printf("Digite o novo preco do produto: ");
+                scanf("%lf", &new_price);
+                edit_product.preco = new_price;
+                printf("Preço alterado com sucesso!\n");
+            } else {
+                printf("Escolha uma opção válida!");
+                continue;
+            }
+
+            printf("Você deseja alterar alguma outra informação? [1] S / [2] N\n");
+            int choice_2;
+            scanf("%d", &choice_2);
+            if (choice_2 == 1) {
+                continue;
+            } else {
+                break;
+            }
+        }
+        for (int j = 0; j < *qtd; j++) {
+            if (produtos[j].codigo == edit_product.codigo) {
+                strcpy(produtos[j].nome, edit_product.nome);
+                produtos[j].preco = edit_product.preco;
+                break;
+            }
+        }
+        printf("Você deseja alterar a informação de algum outro produto? [1] S / [2] N\n");
+        int choice_3;
+        scanf("%d", &choice_3);
+        if (choice_3 == 1) {
+            continue;
+        } else {
+            FILE *reset = fopen(".\\products.txt", "w");
+            if (reset == NULL) {
+                perror("Erro ao iniciar arquivo");
+            }
+            fprintf(reset, "");
+            fclose(reset);
+            
+            for (int h = 0; h < *qtd; h++) {
+                saveProduct(produtos[h]);
+            }
+            printf("Alterações salvas com sucesso!");
+            break;
+        }
+    }
 }

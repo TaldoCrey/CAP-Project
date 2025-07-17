@@ -143,9 +143,9 @@ int main() {
         int qtd = 0;
         struct Produto* produtos = loadProducts(&qtd);
 
-        while (c != 7) {
+        while (c != 8) {
             printf("---------------------------------------\n");
-            printf("Selecione uma Opção:\n[1] Adicionar Produtos\t[2] Adicionar Usuário\n[3] Editar Produto\t[4] Editar Usuário\n[5] Ver Todos os Produtos\t[6] Editar Usuário do Sistema\t[7] sair_compra\n");
+            printf("Selecione uma Opção:\n[1] Adicionar Produtos\t[2] Adicionar Usuário\n[3] Alterar estoque\t[4] Editar Produto\n[5] Editar Usuário\t[6] Ver Todos os Produtos\n[7] Editar Usuário do Sistema\t[8] Sair\n");
             printf(">_: ");
             scanf("%d", &c);
             
@@ -163,7 +163,7 @@ int main() {
                 system("clear");
 
                 int escolha_adm;
-                printf("Selecione uma Opção:\n[1] Adicionar Produtos\n[2] Remover produtos\n[3] Voltar\n> ");
+                printf("Selecione uma Opção:\n[1] Adicionar Produtos ao Estoque\n[2] Remover produtos ao Estoque\n[3] Voltar\n> ");
                 scanf("%d", &escolha_adm);
 
                 if (escolha_adm == 3)
@@ -174,25 +174,29 @@ int main() {
                     scanf("%d", &escolha_adm);
                 }
 
-                if (escolha_adm == 1)
+                if (escolha_adm == 1) {
                     adicionar_quantidade_estoque_admin();
-                else 
+                } else {
                     remover_quantidade_estoque_admin();
+                }
+            } else if (c == 4) {
+                system("cls");
+                editar_produto(&qtd);
 
-            } else if (c == 5) {
+            } else if (c == 6) {
             
                 system("clear");
                 free(produtos);
                 produtos = loadProducts(&qtd);
                 mostrar_produtos(qtd, produtos);
             
-            } else if (c == 6){
+            } else if (c == 7){
                 editar_usuario();
             } else {
                 printf("Digite uma opção válida!");
             }
         }
-
         free(produtos);
     }
+    
 }
