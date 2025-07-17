@@ -163,11 +163,16 @@ int main() {
                 system("clear");
 
                 int escolha_adm;
+                printf("Cod##Nome do Produto ..... Quantidade");
+                for (int index = 0; index < qtd; index++) {
+                    printf("%d##%s .......... %d\n", produtos[index].codigo, produtos[index].nome, produtos[index].quantidade);
+                }
                 printf("Selecione uma Opcao:\n[1] Adicionar Produtos ao Estoque\n[2] Remover produtos ao Estoque\n[3] Voltar\n> ");
                 scanf("%d", &escolha_adm);
 
-                if (escolha_adm == 3)
+                if (escolha_adm == 3) {
                     continue;
+                }
 
                 while (escolha_adm > 2 || escolha_adm < 1){
                     printf("Digite uma opcao valida!\n> ");

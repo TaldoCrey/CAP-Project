@@ -678,7 +678,6 @@ int finalizar_compra(){
     Procedimento para adicionar quantidades de um produto no modo administrador!
 */
 void adicionar_quantidade_estoque_admin() {
-    system("clear");
     printf("\n\t\t--- ADICIONAR QUANTIDADE AO ESTOQUE ---\n");
 
     int qtd_total_produtos = 0;
@@ -721,7 +720,6 @@ void adicionar_quantidade_estoque_admin() {
     ou remover o produto completamente.
 */
 void remover_quantidade_estoque_admin() {
-    system("clear");
     printf("\n\t\t--- REMOVER QUANTIDADE DO ESTOQUE ---\n");
 
     int qtd_total_produtos = 0;
