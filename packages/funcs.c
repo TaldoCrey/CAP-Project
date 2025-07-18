@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 
-void pagar_fiado(int total);
+int pagar_fiado(int total);
 
 int user_id = 0;
 int cod = 0;
@@ -698,8 +698,7 @@ int finalizar_compra(){
         remover_produto();
     }
     else{
-        pagar_fiado(total);
-        return 1;
+        return pagar_fiado(total);
     }
 }
 
@@ -1246,7 +1245,7 @@ procedimento que acrescenta o valor do carrinho do cliente como divida em sua co
 @param total: valor total do carrinho do cliente
 */
 
-void pagar_fiado(int total){
+int pagar_fiado(int total){
 
     int qtd = 0;
     struct cliente *clientes = load_dividas(&qtd);
@@ -1256,63 +1255,59 @@ void pagar_fiado(int total){
         printf("Cliente possui conta?\n");
         printf("[1] Sim   [2] Nao\n[3] Sair\n");
         scanf("%d", &escolha);
-        switch(escolha){
-            case 1:
-                if(clientes == NULL){
-                    printf("Erro");
-                }
-                else{     
-                    printf("Insira o CPF do cliente (-1 para cancelar): ");
-                    int cpf;
-                    scanf("%d", &cpf);
-                    if(cpf == -1) return;
+
+        if(escolha == 1){
+            if(clientes == NULL){
+            printf("Erro");
+            }
+            else{     
+                printf("Insira o CPF do cliente (-1 para cancelar): ");
+                int cpf;
+                scanf("%d", &cpf);
+                if(cpf == -1) return 0;
+                else{
+                    struct cliente cliente_encontrado = procura_cliente(clientes, qtd, cpf);
+                    if(cliente_encontrado.cpf == -1){
+                        printf("\n---------------------------------------\n");
+                        printf("cliente nao enccontrado\n");
+                    }
                     else{
-                        struct cliente cliente_encontrado = procura_cliente(clientes, qtd, cpf);
+                        FILE *arquivo = fopen("contas_clientes.txt", "w");
 
-                        if(cliente_encontrado.cpf == -1){
-                            printf("\n---------------------------------------\n");
-                            printf("cliente nao enccontrado\n");
-                            return;
+                        if(arquivo == NULL){
+                            printf("erro ao abrir arquivo de contas");
+                            system("clear");
+                            return 0;
                         }
-                        else{
-                            FILE *arquivo = fopen("contas_clientes.txt", "w");
 
-                            if(arquivo == NULL){
-                                printf("erro ao abrir arquivo de contas");
+                        for(int i = 0; i < qtd; i++){
+                            if(clientes[i].cpf != cpf){
+                                fprintf(arquivo, "%d;%s;%.2lf\n", clientes[i].cpf, clientes[i].nome, clientes[i].divida);
+                            }
+                            else {
+                                fprintf(arquivo, "%d;%s;%.2lf\n", clientes[i].cpf, clientes[i].nome, (clientes[i].divida + total));
                                 system("clear");
-                                return;
-                            }
-
-                            for(int i = 0; i < qtd; i++){
-                                if(clientes[i].cpf != cpf){
-                                    fprintf(arquivo, "%d;%s;%.2lf", clientes[i].cpf, clientes[i].nome, clientes[i].divida);
-                                }
-                                else {
-                                    fprintf(arquivo, "%d;%s%.2lf", clientes[i].cpf, clientes[i].nome, (clientes[i].divida + total));
-                                    system("clear");
-                                    printf("----INFORMACOES DO CLIENTE----\n");
-                                    printf("Nome: %s. CPF: %d\n", clientes[i].nome, clientes[i].cpf);
-                                    printf("Antiga divida: R$%.2lf\n", clientes[i].divida);
-                                    printf("Nova divida: R$%.2lf\n", (clientes[i].divida + total));
-                                    printf("Sua compra foi finalizada! Volte sempre!\n");
-                                    fclose(arquivo);
+                                printf("----INFORMACOES DO CLIENTE----\n");
+                                printf("Nome: %s. CPF: %d\n", clientes[i].nome, clientes[i].cpf);
+                                printf("Antiga divida: R$%.2lf\n", clientes[i].divida);
+                                printf("Nova divida: R$%.2lf\n", (clientes[i].divida + total));
+                                printf("Sua compra foi finalizada! Volte sempre!\n");
+                                fclose(arquivo);
                                     
-                                    return;
-                                }
+                                return 1;
                             }
+                        }
 
                             
-                        }
                     }
                 }
-            case 2: {
-                cadastrar_cliente();
             }
-
-
         }
-    }                        
-}
+        else if (escolha == 2) 
+            cadastrar_cliente();
+    }
+}                        
+
 
 
 /*
