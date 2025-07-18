@@ -1214,7 +1214,7 @@ void cadastrar_cliente(){
 
     printf("Insira o nome do cliente: ");
     char nome[50];
-    scanf("%s", &nome);
+    scanf("%s", nome);
 
     printf("Insira divida do cliente: ");
     double divida;
