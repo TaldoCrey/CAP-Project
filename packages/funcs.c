@@ -1251,6 +1251,7 @@ int pagar_fiado(int total){
     struct cliente *clientes = load_dividas(&qtd);
     int escolha = -1;
     while(escolha != 3){
+        clientes = load_dividas(&qtd);
         printf("\n---------------------------------------\n");
         printf("Cliente possui conta?\n");
         printf("[1] Sim   [2] Nao\n[3] Sair\n");
@@ -1279,7 +1280,7 @@ int pagar_fiado(int total){
                             system("clear");
                             return 0;
                         }
-
+                        int found = 0;
                         for(int i = 0; i < qtd; i++){
                             if(clientes[i].cpf != cpf){
                                 fprintf(arquivo, "%d;%s;%.2lf\n", clientes[i].cpf, clientes[i].nome, clientes[i].divida);
@@ -1292,11 +1293,11 @@ int pagar_fiado(int total){
                                 printf("Antiga divida: R$%.2lf\n", clientes[i].divida);
                                 printf("Nova divida: R$%.2lf\n", (clientes[i].divida + total));
                                 printf("Sua compra foi finalizada! Volte sempre!\n");
-                                fclose(arquivo);
-                                    
-                                return 1;
+                                found = 1;
                             }
                         }
+                        fclose(arquivo);
+                        return found;
 
                             
                     }
