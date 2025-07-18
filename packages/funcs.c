@@ -1375,3 +1375,32 @@ void conta_cliente(){
         }   
     }
 }
+
+/*
+    Função que faz o login do administrador.
+    Pede usuário e senha, verifica no arquivo "users.txt".
+    Retorna 1 se o login for válido, 0 se não for.
+*/
+
+int login_admin() {
+    char usuario[100], senha[100];
+    printf("Usuário: ");
+    scanf("%s", usuario);
+    printf("Senha: ");
+    scanf("%s", senha);
+
+    FILE *f = fopen("users.txt", "r");
+    if (!f) return 0;
+
+    char nome[100], senha_salva[100];
+    int lixo; // será ignorado
+    while (fscanf(f, "%[^;];%[^;];%d\n", nome, senha_salva, &lixo) != EOF) {
+        if (strcmp(nome, usuario) == 0 && strcmp(senha_salva, senha) == 0) {
+            fclose(f);
+            return 1;
+        }
+    }
+
+    fclose(f);
+    return 0;
+}
