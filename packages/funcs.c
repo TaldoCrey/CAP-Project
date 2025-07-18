@@ -2,6 +2,9 @@
 #include <string.h>
 #include <stdlib.h>
 
+#define MAX_CLIENTES 100
+#define TAM_LINHA 200
+
 
 int pagar_fiado(int total);
 
@@ -1358,6 +1361,7 @@ void conta_cliente(){
                                     printf("Sua divida eh de: %.2lf\n", cliente_encontrado.divida);
                                     pagar_divida(cpf);
                                     clientes = load_dividas(&qtd);
+                                    return;
                                 }
                                 else if(segunda_escolha == 2) return;
                                 else{ 
@@ -1369,8 +1373,10 @@ void conta_cliente(){
                         }
                     }
                 }
+                break;
             case 2:
                 cadastrar_cliente();
+                break;
             case 3: return;
         }   
     }
@@ -1403,4 +1409,81 @@ int login_admin() {
 
     fclose(f);
     return 0;
+}
+
+void editar_conta_cliente() {
+    FILE *f = fopen("contas_clientes.txt", "r");
+    if (!f) {
+        printf("Erro ao abrir contas_clientes.txt\n");
+        return;
+    }
+
+    char linhas[MAX_CLIENTES][TAM_LINHA];
+    int total = 0;
+
+    // Lê todas as linhas do arquivo e armazena
+    while (fgets(linhas[total], TAM_LINHA, f) != NULL && total < MAX_CLIENTES) {
+        linhas[total][strcspn(linhas[total], "\n")] = '\0';  // remove \n
+        total++;
+    }
+    fclose(f);
+
+    if (total == 0) {
+        printf("Nenhum cliente encontrado.\n");
+        return;
+    }
+
+    // Lista os nomes dos clientes
+    printf("\nClientes encontrados:\n");
+    for (int i = 0; i < total; i++) {
+        char linha_copia[TAM_LINHA];
+        strcpy(linha_copia, linhas[i]); // cópia para preservar original
+
+        char *cpf = strtok(linha_copia, ";");
+        char *nome = strtok(NULL, ";");
+
+        if (nome)
+            printf("[%d] %s\n", i + 1, nome);
+    }
+
+    int opcao;
+    printf("\nEscolha o número do cliente que deseja editar: ");
+    scanf("%d", &opcao);
+    getchar(); // limpa buffer
+
+    if (opcao < 1 || opcao > total) {
+        printf("Opção inválida.\n");
+        return;
+    }
+
+    char novo_cpf[50], novo_nome[100], nova_divida[50];
+
+    printf("Novo CPF: ");
+    fgets(novo_cpf, sizeof(novo_cpf), stdin);
+    novo_cpf[strcspn(novo_cpf, "\n")] = '\0';
+
+    printf("Novo Nome: ");
+    fgets(novo_nome, sizeof(novo_nome), stdin);
+    novo_nome[strcspn(novo_nome, "\n")] = '\0';
+
+    printf("Nova Dívida: ");
+    fgets(nova_divida, sizeof(nova_divida), stdin);
+    nova_divida[strcspn(nova_divida, "\n")] = '\0';
+
+    // Atualiza a linha selecionada
+    snprintf(linhas[opcao - 1], TAM_LINHA, "%s;%s;%s", novo_cpf, novo_nome, nova_divida);
+
+    // Reescreve o arquivo
+    f = fopen("contas_clientes.txt", "w");
+    if (!f) {
+        printf("Erro ao reabrir o arquivo para escrita.\n");
+        return;
+    }
+
+    for (int i = 0; i < total; i++) {
+        fprintf(f, "%s\n", linhas[i]);
+    }
+    fclose(f);
+
+    printf("\nCliente atualizado com sucesso!\n");
 }

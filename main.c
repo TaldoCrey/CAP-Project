@@ -36,9 +36,9 @@ int main() {
         printf("Modo CAIXA!\n");
 
         int escolha = -1;
-        while (escolha != 4) {
+        while (escolha != 5) {
             printf("---------------------------------------\n");
-            printf("Selecione uma Opção:\n[1] Realizar compra\n[2] Ver carrinho de compra\n[3] Acessar conta do cliente\n[4] Sair\n");
+            printf("Selecione uma Opção:\n[1] Realizar compra\n[2] Ver carrinho de compra\n[3] Acessar conta do cliente\n[4] Editar cliente\n[5] Sair\n");
             printf(">_: ");
             scanf("%d", &escolha);                
             switch (escolha) {
@@ -58,13 +58,13 @@ int main() {
                     scanf("%d", &codigo);
                     while (getchar() != '\n');
 
-                    int sair_compra = 0;
+                    //int sair_compra = 0;
                     while (codigo != -1) {
                         if (produtos != NULL) free(produtos);
                         produtos = loadProducts(&qtd); 
                         if (produtos == NULL || qtd == 0) {
                             printf("Erro ao carregar produtos ou nenhum produto cadastrado. Saindo da compra.\n");
-                            sair_compra = 1;
+                            //sair_compra = 1;
                             break; 
                         }
 
@@ -118,6 +118,15 @@ int main() {
                     }
                     break;
                 case 4:
+                    system("clear");
+                    printf("Autenticação do Administrador requerida!\n");
+                    if (login_admin()) {
+                        editar_conta_cliente();
+                    } else {
+                        printf("Falha na autenticação. Retornando ao menu.\n");
+                    }
+                    break;
+                case 5:
                     printf("Encerrando aplicação...\n");
                     return 0;
                 default:
