@@ -39,9 +39,9 @@ int main() {
         printf("Modo CAIXA!\n");
 
         int escolha = -1;
-        while (escolha != 4) {
+        while (escolha != 5) {
             printf("---------------------------------------\n");
-            printf("Selecione uma Opção:\n[1] Realizar compra\n[2] Ver carrinho de compra\n[3] Editar Usuário\n[4] sair_compra\n");
+            printf("Selecione uma Opção:\n[1] Realizar compra\n[2] Ver carrinho de compra\n[3] Editar Usuário\n[4] Acessar conta do cliente\n[5] sair_compra\n");
             printf(">_: ");
             scanf("%d", &escolha);                
             switch (escolha)
@@ -130,8 +130,13 @@ int main() {
                 editar_usuario();
                 break;
             case 4:
-                printf("Encerrando Aplicação...\n");
+                system("clear");
+                conta_cliente();
                 break;
+                
+            case 5:
+                printf("Encerrando Aplicação...\n");
+                return 0;
             default:
                 printf("Opcao invalida. Tente novamente.\n");
                 break;

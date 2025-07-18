@@ -2,6 +2,9 @@
 #include <string.h>
 #include <stdlib.h>
 
+
+void pagar_fiado(int total);
+
 int user_id = 0;
 int cod = 0;
 
@@ -653,18 +656,16 @@ void remover_produto() {
 
 int finalizar_compra(){
 
-
-
     double total = exibir_carrinho();
     
     if (total == 0)
         return 0;
 
     int escolha;
-    printf("\n\nVoce deseja\n[1] Realizar o pagamento\n[2] Remover produto\n[3] Voltar> ");
+    printf("\n\nVoce deseja\n[1] Realizar o pagamento\n[2] Remover produto\n[3] Colocar divida na conta\n[4] Voltar> ");
     scanf("%d", &escolha);
 
-    if (escolha == 3)
+    if (escolha == 4)
         return 0;
 
     while (escolha <= 1 && escolha >= 2){
@@ -693,8 +694,13 @@ int finalizar_compra(){
         printf("O seu troco foi de R$ %.2f.\nVolte sempre!!\n\n", troco);
         return 1;
     }
-    else
+    else if(escolha == 2){
         remover_produto();
+    }
+    else{
+        pagar_fiado(total);
+        return 1;
+    }
 }
 
 /*
@@ -1041,4 +1047,335 @@ void editar_produto(int *qtd) {
 }
 
 
-void pagar_fiado(); 
+/*
+Container que armazena as informações de um cliente
+
+@param cpf: numero de cpf do cliente
+@param nome: nome do cliente
+@param divida: divida do cliente
+*/
+struct cliente{
+    int cpf;
+    char nome[50];
+    double divida;
+};
+
+/*
+Uma função que retorna um container com as informações das contas dos clientes  
+
+@param qtd: quantiade de contas
+@returns uma lista com todas as informaçoes das contas dos clientes
+*/
+
+struct cliente *load_dividas(int *qtd){
+    *qtd = 0;
+    int capacidade = 2;
+    FILE *dividas = fopen("contas_clientes.txt", "r");
+
+    struct cliente *clientes = NULL;
+    clientes = malloc(capacidade *sizeof(struct cliente));
+    if(dividas == NULL){
+        printf("{Nenhuma conta de cliente criada}\n");
+        return clientes;
+    }
+
+    char linha[200];
+    while(fgets(linha, sizeof(linha), dividas) != NULL){
+        if(strlen(linha) == 0){
+            continue;
+        }
+        if(*qtd == capacidade){
+            capacidade *= 2;
+            struct cliente *temp = realloc(clientes, capacidade * sizeof(struct Produto));
+            if(temp == NULL){
+                perror("Erro ao realocar memoria!");
+                free(clientes);
+                fclose(dividas);
+                return NULL;
+            }
+            clientes = temp;
+        }
+        const char del[] = ";";
+
+
+        char *it;
+        int cpf;
+        char nome_cliente[50];
+        double divida_cliente;
+
+        char temp_linha[200];
+        strcpy(temp_linha, linha);
+
+        it = strtok(temp_linha, del);
+
+        if(it){
+            sscanf(it, "%d", &cpf);
+        }
+        else
+            continue;
+
+        it = strtok(NULL, del);
+
+        if(it){ 
+            strcpy(nome_cliente, it); }
+        else 
+            continue;
+
+        it = strtok(NULL, del); 
+
+        if(it){ 
+            sscanf(it, "%lf", &divida_cliente);
+            }
+        else
+            continue;
+        
+        strcpy(clientes[*qtd].nome, nome_cliente);
+        clientes[*qtd].cpf = cpf;     
+        clientes[*qtd].divida = divida_cliente;      
+        (*qtd)++;   
+
+    }
+    return clientes;
+}
+
+
+/*
+funcão que retorna um container com as informações de um cliente em especifico
+
+@param clientes: container com todas as infos dos clientes
+@param qtd: quantidade total de clientes registrados
+@param cpf: cpf do cliente desejado
+*/
+struct cliente procura_cliente(struct cliente* clientes, int qtd,int cpf){
+    for(int i = 0; i < qtd; i++){
+        if(clientes[i].cpf == cpf){
+            system("clear"); 
+            printf("---------------------------------------");
+            printf("\nCliente: %s\nCPF: %d\nDivida: %.2lf\n", clientes[i].nome, clientes[i].cpf, 
+                        clientes[i].divida);
+            return clientes[i];
+        }
+    }
+
+    struct cliente not_found;
+    not_found.cpf = -1;
+    return not_found;
+}
+
+/*
+procedimento que serve para pagar a divida de um cliente
+
+@param cpf: cpf do cliente que deseja pagar sua divida
+*/
+void pagar_divida(int cpf){
+    int qtd = 0;
+    struct cliente* cliente_temp = load_dividas(&qtd);
+
+    printf("Quanto da divida deseja pagar?\n");
+    int pagar;
+    scanf("%d", &pagar);
+
+    FILE *arquivo = fopen("contas_clientes.txt", "w");
+
+    for(int i = 0; i < qtd; i++){
+        if(cliente_temp[i].cpf != cpf){
+            fprintf(arquivo, "%d;%s;%.2lf\n", cliente_temp[i].cpf, cliente_temp[i].nome, cliente_temp[i].divida);
+        }
+        else{ 
+            fprintf(arquivo, "%d;%s;%.2lf\n", cliente_temp[i].cpf, cliente_temp[i].nome, (cliente_temp[i].divida - pagar));
+            printf("Sua nova divida eh: %.2lf\n", cliente_temp[i].divida - pagar);
+        }
+    }
+
+    free(cliente_temp);
+    fclose(arquivo);
+}
+
+/*
+procedimento que cadastra o cliente no sistema, guardando cpf, nome e possivel divida
+*/
+
+void cadastrar_cliente(){
+    
+    printf("\n---------------------------------------\n");
+
+    printf("Insira o cpf do cliente: ");
+    int cpf;
+    scanf("%d", &cpf);
+    
+    int qtd = 0;
+    struct cliente *lista = load_dividas(&qtd);
+    int sentinela = 0;
+    for(int i = 0; i < qtd; i++){
+        if(cpf == lista[i].cpf){
+            printf("Cliente já possui cadastro!\n");
+            return;
+        }
+    }
+
+    printf("Insira o nome do cliente: ");
+    char nome[50];
+    scanf("%s", &nome);
+
+    printf("Insira divida do cliente: ");
+    double divida;
+    scanf("%lf", &divida);
+
+    
+    if(sentinela != 1){
+        FILE *arquivo = fopen("contas_clientes.txt", "a");
+
+        if(arquivo == NULL){
+            printf("{Erro ao abrir arquivo de contas}");
+        }
+    
+        fprintf(arquivo, "%d;%s;%.2lf\n", cpf, nome, divida);
+
+        system("clear");
+        printf("\n---------------------------------------\n");
+
+        printf("Cliente: {%s}, cadastrado com sucesso!\n", nome);
+
+        fclose(arquivo);
+    }
+    free(lista);
+}
+
+/*
+procedimento que acrescenta o valor do carrinho do cliente como divida em sua conta
+@param total: valor total do carrinho do cliente
+*/
+
+void pagar_fiado(int total){
+
+    int qtd = 0;
+    struct cliente *clientes = load_dividas(&qtd);
+    int escolha = -1;
+    while(escolha != 3){
+        printf("\n---------------------------------------\n");
+        printf("Cliente possui conta?\n");
+        printf("[1] Sim   [2] Nao\n[3] Sair\n");
+        scanf("%d", &escolha);
+        switch(escolha){
+            case 1:
+                if(clientes == NULL){
+                    printf("Erro");
+                }
+                else{     
+                    printf("Insira o CPF do cliente (-1 para cancelar): ");
+                    int cpf;
+                    scanf("%d", &cpf);
+                    if(cpf == -1) return;
+                    else{
+                        struct cliente cliente_encontrado = procura_cliente(clientes, qtd, cpf);
+
+                        if(cliente_encontrado.cpf == -1){
+                            printf("\n---------------------------------------\n");
+                            printf("cliente nao enccontrado\n");
+                            return;
+                        }
+                        else{
+                            FILE *arquivo = fopen("contas_clientes.txt", "w");
+
+                            if(arquivo == NULL){
+                                printf("erro ao abrir arquivo de contas");
+                                system("clear");
+                                return;
+                            }
+
+                            for(int i = 0; i < qtd; i++){
+                                if(clientes[i].cpf != cpf){
+                                    fprintf(arquivo, "%d;%s;%.2lf", clientes[i].cpf, clientes[i].nome, clientes[i].divida);
+                                }
+                                else {
+                                    fprintf(arquivo, "%d;%s%.2lf", clientes[i].cpf, clientes[i].nome, (clientes[i].divida + total));
+                                    system("clear");
+                                    printf("----INFORMACOES DO CLIENTE----\n");
+                                    printf("Nome: %s. CPF: %d\n", clientes[i].nome, clientes[i].cpf);
+                                    printf("Antiga divida: R$%.2lf\n", clientes[i].divida);
+                                    printf("Nova divida: R$%.2lf\n", (clientes[i].divida + total));
+                                    printf("Sua compra foi finalizada! Volte sempre!\n");
+                                    fclose(arquivo);
+                                    
+                                    return;
+                                }
+                            }
+
+                            
+                        }
+                    }
+                }
+            case 2: {
+                cadastrar_cliente();
+            }
+
+
+        }
+    }                        
+}
+
+
+/*
+procedimento que serve para manejar a conta de um cliente. Ver seu total de dividas, 
+            abater a divida e checar se o cliente possui ou não conta
+
+*/
+void conta_cliente(){
+    int qtd = 0;
+    struct cliente *clientes = load_dividas(&qtd);
+    int escolha = -1;
+    while(escolha != 3){
+        printf("\n---------------------------------------\n");
+        printf("Cliente possui conta?\n");
+        printf("[1] Sim   [2] Nao\n[3] Sair\n");
+        scanf("%d", &escolha);
+        switch(escolha){
+            case 1:
+                if(clientes == NULL){
+                    printf("Erro");
+                }
+                else{     
+                    printf("Insira o CPF do cliente (-1 para cancelar): ");
+                    int cpf;
+                    scanf("%d", &cpf);
+                    if(cpf == -1) return;
+                    else{
+                        struct cliente cliente_encontrado = procura_cliente(clientes, qtd, cpf);
+
+                        if(cliente_encontrado.cpf == -1){
+                            printf("\n---------------------------------------\n");
+                            printf("cliente nao enccontrado\n");
+                            return;
+                        }
+                        else{
+                            printf("O que deseja fazer?\n");
+                            printf("[1] Pagar divida   [2] Sair\n");
+                            int segunda_escolha = -1;
+                            
+
+                            while(segunda_escolha != 3){
+                                scanf("%d", &segunda_escolha);
+                                system("clear");
+                                printf("\n---------------------------------------\n");
+                                
+                                if(segunda_escolha == 1){
+                                    printf("Sua divida eh de: %.2lf\n", cliente_encontrado.divida);
+                                    pagar_divida(cpf);
+                                    clientes = load_dividas(&qtd);
+                                }
+                                else if(segunda_escolha == 2) return;
+                                else{ 
+                                    printf("Escolha um valor valido\n");
+                                    printf("O que deseja fazer?\n");
+                                    printf("[1] Pagar divida   [2] Sair\n");
+                                }
+                            }
+                        }
+                    }
+                }
+            case 2:
+                cadastrar_cliente();
+            case 3: return;
+        }   
+    }
+}
