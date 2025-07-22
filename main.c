@@ -142,7 +142,7 @@ int main() {
 
         while (1) {
             printf("---------------------------------------\n");
-            printf("Selecione uma Opcao:\n[1] Adicionar Produtos\t[2] Adicionar Usuario\n[3] Alterar estoque\t[4] Editar Produto\n[5] Editar Usuario\t[6] Ver Todos os Produtos\n[7] Editar Usuario do Sistema\t[8]Sair\n");
+            printf("Selecione uma Opcao:\n[1] Adicionar Produtos\t[2] Adicionar Usuario\n[3] Alterar estoque\t[4] Editar Produto\n[5] Editar Cliente\t[6] Ver Todos os Produtos\n[7] Editar Usuario do Sistema\t[8]Sair\n");
             printf(">_: ");
             scanf("%d", &c);
             
@@ -186,7 +186,8 @@ int main() {
             } else if (c == 4) {
                 system("cls");
                 editar_produto(&qtd);
-
+            } else if (c == 5){
+                editar_conta_cliente();
             } else if (c == 6) {
             
                 system("clear");
